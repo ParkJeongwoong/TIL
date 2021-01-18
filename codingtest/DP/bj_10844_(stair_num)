@@ -67,6 +67,7 @@ print(sum_digit%1000000000)
 - 파이썬은 참조변수만 존재 / 처음처럼 변수를 지정하면 이름만 다른 같은 변수가 된다. (참조 주소가 같음)
   - temp_digit을 변경하면 digit도 함께 바뀜
 - 만약 값을 그대로 받아오고 싶다면 `temp_digit = digit[:]` 을 사용해야 함
+    - 혹은 `temp_digit = list(digit)` 도 가능
 
 
 
