@@ -119,7 +119,7 @@ for member in member_list:
 - lambda 함수를 이용
   - lambda는 단순히 나이를 우선으로 하라는 의미로 사용
   - 가입순 부분은 파이썬 내장함수의 정렬이 안정 정렬을 수행하기 때문에 기존의 index 대로 정렬되는 걸 사용
-  - 
+
 
 #### `lambda`
 
