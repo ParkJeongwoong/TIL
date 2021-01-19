@@ -110,7 +110,8 @@ for i in range(times):
 
 ### 동작 결과
 
-![image-20210116183333139](bj_9095_(add_1_2_3)_better_way.assets/image-20210116183333139.png)
+![image](https://user-images.githubusercontent.com/77447841/105063975-b234f300-5abf-11eb-9b57-f0e68a499546.png)
+
 
 **실제로 기존 방법(위의 결과)보다 새로운 방법(아래의 결과)가 더 짧은 시간 내에 수행**
 
