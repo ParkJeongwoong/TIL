@@ -153,7 +153,7 @@ for i in BFS_result:
 
 ### 설명
 
-![image-20210119151324403](bj_1260_(DFS_BFS).assets/image-20210119151324403.png)
+![image](https://user-images.githubusercontent.com/77447841/105063737-6da95780-5abf-11eb-8bdc-41b860f9d639.png)
 
 - DFS는 그냥 edge 타고 쭉 내려가기만 하면 됨
 
