@@ -53,3 +53,26 @@ bills = []
 DFS_result = DFS(Nodes,V-1,visited,bills)
 for i in range(len(DFS_result)):
     print(DFS_result[i], end = ' ')
+ 
+ 
+######################다른 방법
+def DFS(Nodes,V,visited,bills):
+    visited[V] = 1
+    bills.append(V+1)
+
+    for i, node in enumerate(Nodes[V]):
+        print(i, node, visited)
+        if node == 1:
+            if visited[i] == 0:
+                print(bills)
+                DFS(Nodes,i,visited,bills)
+
+    return bills
+
+
+bills = []
+visited = [0] * N
+
+DFS_result = DFS(Nodes,V-1,visited,bills)
+print(DFS_result)
+
