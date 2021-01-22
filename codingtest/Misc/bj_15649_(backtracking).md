@@ -70,7 +70,8 @@
 
 조건을 탐색하며 전체 경우의 수 확인
 
-![image-20210123023139179](bj_15649_(backtracking).assets/image-20210123023139179.png)
+![image-20210123023139179](https://user-images.githubusercontent.com/77447841/105526045-3a680200-5d25-11eb-9271-bb6a07d5e353.png)
+
 
 - 매 노드마다 조건을 확인
 - 조건에 맞지 않으면 해당 노드의 하위 노드는 방문 X
@@ -142,4 +143,4 @@ print( '\n'.join( [ ' '.join( perm ) for perm in permutations( nums, M ) ] ) )
 
 
 
-- 결론 적으로 위의 문제를 그대로 표현한 함수
+- 결론적으로 위의 문제를 그대로 표현한 함수
