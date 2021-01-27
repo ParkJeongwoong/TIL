@@ -93,7 +93,7 @@ for i in sys.stdin:
 
 
 
-#### sys.stdin.readline()
+#### sys.stdin.readlines() <- (readline => readlines)
 
 사용자의 입력을 받으며 <u>줄바꿈(개행문자 \n)까지 함께 입력</u> 받는다.
 
