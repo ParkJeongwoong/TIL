@@ -16,3 +16,6 @@ started 2021-01-15
 
 ## codingtest
 코딩테스트 문제를 푼 것들을 마크다운으로 정리한 폴더
+
+## recording
+Excel 파일에 기록하던 내용을 동기화
