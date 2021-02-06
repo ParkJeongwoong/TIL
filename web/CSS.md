@@ -366,3 +366,140 @@ border: 2px dashed black
 - 축
   - main axis (메인축)
   - cross axis (교차축)
+
+
+
+#### 시작
+
+부모 요소에 `display: flex;`나 `display: inline-flex;`를 작성하는 것부터 시작
+
+(flex만 선언해도 main 축 기준 좌->우 정렬)
+
+> items 내부 요소를 또 flex하고 싶으면
+>
+> display: flex가 상속이 되는 것이 아니라, items에서 <u>다시 display: flex를 선언</u>해야 함
+
+
+
+#### 속성
+
+- 배치 방향 설정
+  - `flex-direction`
+    - row가 default
+    - column으로 바꾸면 메인축이 세로가 되는 것
+- 메인축 방향 정렬
+  - `justify-content`
+- 교차축 방향 정렬
+  - `align-items, align-self, align-content`
+- 기타
+  - `flex-wrap, flex-flow, flex-grow, order`, *flex-shrink, flex-basis*
+    - wrap을 사용하면 컨테이너를 벗어나면 줄바꿈 (default : nowrap)
+
+
+
+##### flex-direction
+
+축이 바뀐다는 것 = main축이 바뀐다는 것 (flexbox는 단방향 레이아웃)
+
+**세로로 정렬하는 건 교차축 정렬이 아니라, 메인축이 세로가 된 것**
+
+- row (default) : 좌 -> 우
+- row-reverse : 우 -> 좌
+- column : 위 -> 아래
+- column-reverse : 아래 -> 위
+
+
+
+##### justify & align
+
+justify : 메인축 방향 정렬
+
+align : 교차축 방향 정렬
+
+
+
+##### content & items & self
+
+- content / `면`
+  - 여러 줄
+- items / `선`
+  - 한 줄
+- self / `점`
+  - flex item 개별 요소
+
+```
+justif-content : 메인축 기준 여러 줄 정렬
+align-items : 교차축 기준 한 줄 정렬
+align-self : 교차축 기준 선택 요소 하나 정렬
+```
+
+```
+- justify-content
+flex-start, flex-end, center, space-between, space-around, space-evenly
+
+- align-items
+flex-start, flex-end, center, stretch, baseline
+
+- align-content
+flex-start, flex-end, center, stretch, space-between, space-around
+
+- align-self
+auto, flex-start, flex-end, center, stretch, baseline
+```
+
+- baseline은 font 크기에 대해 기준을 맞추는 것
+
+- `self`만 예외적으로 개별 요소에 적용
+  - order도 개별 요소에 적용 (oder가 <u>작은 순서대로</u> 배치 / 기본값은 0)
+- `flex-grow` : 주축에서 남는 부분을 n 등분해서 grow 값만큼 할당
+- ***align-items랑 content 차이점!!!**
+  - https://lycaeum.dev/ko/questions/27539262
+
+
+
+#### flex 적용 전체 구조
+
+```css
+<style>
+	/* container에 flex를 적용할 item들을 두고 container에 flex 적용*/
+    .flex-container {
+      display: flex;
+     
+      flex-wrap: wrap;
+      flex-direction: row;
+        
+      /* flex-direction과 flex-wrap의 shorthand */
+      /* flex-flow: column wrap; */
+
+      /* 메인축 정렬 */
+      justify-content: flex-start;
+        
+      /* 교차축 정렬 */
+      align-items: flex-start;
+    }
+
+    .item {
+	  align-self: center;
+      order: -1;
+      /* flex-grow는 주축에서 남는 공간을 항목들에게 분배 */
+      /* flex-grow:1 */
+    }
+  </style>
+```
+
+
+
+#### 정리
+
+| 속성            | default    |             |               |
+| --------------- | ---------- | ----------- | ------------- |
+| display         | -          | flex        | inline-flex   |
+| flex-wrap       | nowrap     | wrap        |               |
+| flex-direction  | row        | column      | row-reverse   |
+| flex-flow       | -          | column wrap |               |
+| justify-content | flex-start | flex-end    | space-between |
+| align-items     | stretch    | flex-start  | baseline      |
+| align-self      | flex-start | flex-end    | center        |
+| order           | 0          |             |               |
+| flex-grow       | 0          |             |               |
+
