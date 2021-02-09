@@ -94,5 +94,14 @@ def solution(new_id):
 
 
 ## 소감
+새로 배운 method
 
-  
+.isdigit
+
+.startswith()
+
+.endswith()
+
+새로 배운 방법
+
+아스키 코드보단 list로 묶어서 in으로 처리하는 게 나음
