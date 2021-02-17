@@ -267,6 +267,117 @@ print('최종 갯수 :',wrong)
 
 
 
+### 2차 코드
+
+```python
+T = int(input())
+
+def omoking(o):
+    if o == 'o':
+        return 1
+    else:
+        return 0
+
+for tc in range(1, T+1):
+    N = int(input())
+    stones = [] # 돌의 정보
+    for o in range(N):
+        omok = list(map(omoking,input())) # 오목 판 만들기
+        idx = -1 # 찾는 시작점
+        for oo in range(omok.count(1)): # 돌 위치 찾기
+            idx = omok.index(1,idx+1) # idx 위치부터 돌 찾고 x좌표 위치 반환
+            stones.append((idx,o)) # 돌의 x, y 좌표 저장
+
+
+    ### 오류 해결
+    if not stones:# 비어있으면
+        print('#{} {}'.format(tc, 'NO'))
+        continue
+
+   
+
+    # print(stones)
+    # print('------------------------------------------')
+    isomok = False
+    # 백트래킹이 적합함 (DFS 사용)
+    stack = [(stones.pop(0),0,0)] # x, y, count, way
+    visited = [0]*(len(stones))
+
+    while stack:
+        (x, y), count, way = stack.pop()
+        count += 1
+
+        # print(x,y,'!!count = ',count,'@way = ',way)
+        
+        for nb in range(len(stones)):
+            if visited[nb]:
+                continue
+
+            if stones[nb] == (x,y+1) and (not way or way ==1):
+                stack.append((stones[nb],count,1))
+                visited[nb] = 1
+                
+            if stones[nb] == (x+1,y+1) and (not way or way ==2):
+                stack.append((stones[nb],count,2))
+                visited[nb] = 1
+            if stones[nb] == (x+1,y) and (not way or way ==3):
+                stack.append((stones[nb],count,3))
+                visited[nb] = 1
+            if stones[nb] == (x+1,y-1) and (not way or way ==4):
+                stack.append((stones[nb],count,4))  
+                visited[nb] = 1
+
+            if stones[nb] == (x,y-1) and (not way or way ==5):
+                stack.append((stones[nb],count,5))
+                visited[nb] = 1     
+                
+            if stones[nb] == (x-1,y+1) and (not way or way ==6):
+                stack.append((stones[nb],count,6))
+                visited[nb] = 1
+            if stones[nb] == (x-1,y) and (not way or way ==7):
+                stack.append((stones[nb],count,7))
+                visited[nb] = 1
+            if stones[nb] == (x-1,y-1) and (not way or way ==8):
+                stack.append((stones[nb],count,8))
+                visited[nb] = 1
+        
+        # print(stack)
+
+        if count == 5:
+            isomok = True
+            break
+
+        if not stack and stones:
+            stack = [(stones.pop(0),0,0)]
+            visited = [0]*(len(stones))
+            
+    print('#{} {}'.format(tc, 'YES' if isomok else 'NO'))
+```
+
+성공!!! 런타임 에러의 원인이
+
+```
+.....
+.....
+.....
+.....
+.....
+```
+
+이렇게 됐을 때 stones가 비어있어 pop을 못해서 에러가 나는 것이었다.
+
+그래서 오류 해결 용으로 중간에 비어있으면 넘어가는 코드를 추가했다.
+
+
+
+하지만...결론은 확인용 코드보다 결과가 더 안 좋다..
+
+![image](https://user-images.githubusercontent.com/77447841/108177011-062a0a80-7146-11eb-8977-8bab5960f105.png)
+
+
+
+굳이 어렵게 풀 필요 없이 간단한 게 좋을 때도 많다는 것을 배웠다.
+
 
 
 
