@@ -128,7 +128,7 @@ after investigating, there are **two** problems.
    - need to fix this later
 2. there are two different unique keys (**'account_key'** and **'acct'**)
    - inconvenient
-   -  change column from 'acct' to 'account_key'
+   - change column from 'acct' to 'account_key'
      - copy values from 'acct' to 'account_key'
 
 
@@ -156,4 +156,36 @@ Maybe, it needs to be enrolled for a full day to record engagement.
 
 - maybe we need some more investigation
 
-after a check, there was 3 missing students who have different join date and cancel date.
+after a check, there was 3 missing students who have different join date and cancel date. And they turned out to be test samples. So there's no more surprising point.
+
+
+
+## Explore phase
+
+Our question :
+
+**How do numbers in the daily engagement table differ for students who pass the first project?**
+
+Problem of the question :
+
+1. **this will include data from after project submission**
+
+2. **this compares data from different lengths of time**
+3. **daily engagement table includes engagement in courses which is not related to the first projec**t
+
+Revision(Refining) :
+
+**Only look at engagement form first week, and exclude students who canceled within a week**
+
+
+
+## Quiz - Debugging
+
+we found out that studying time of the first week is greater than the number of  minutes in a week. (Which is impossible)
+
+
+
+=> if one student enroll, and cancel, then enroll again, everything from the first enrollment will count as their first week.
+
+
+
