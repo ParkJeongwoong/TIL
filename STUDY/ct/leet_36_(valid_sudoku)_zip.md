@@ -1118,7 +1118,7 @@ class Solution:
                 board[i][j] = self.board[i][j]
 ```
 
-![image-20210221143628070](leet_37_(sudoku_solver).assets/image-20210221143628070.png)
+![image-20210221143628070](https://user-images.githubusercontent.com/77447841/108616787-1c8cda80-7454-11eb-8c98-75f87c0f7636.png)
 
 - 문제의 원인은 **객체**였다.
 - 문제에서 `do not return anything, modify board in-place instead`란 말이 해당 객체 자체를 변경하라는 뜻
