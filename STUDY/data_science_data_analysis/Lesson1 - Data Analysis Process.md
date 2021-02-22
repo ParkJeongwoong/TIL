@@ -189,3 +189,99 @@ we found out that studying time of the first week is greater than the number of 
 
 
 
+## Quiz - Splitting out Passing Student
+
+- Split the engagement data into two lists
+  - Records for students who pass the subway project => passing_engagement
+  - Records for students who do not => non_passing_engagement
+
+
+
+Then Why the number of every unique students who pass the subway project is smaller than length of both engagement table?
+
+
+
+## Making Histogram
+
+```python
+data = [1, 2, 1, 3, 3, 1, 4, 2]
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+plt.hist(data)
+
+plt.show() # to show the plot in a new window
+```
+
+You can see that days visited of students who don't pass the course decrease every day, while students who pass the course don't.
+
+
+
+## Tentative conclusion
+
+Students who pass the subway project spent more minute in the class during their first week.
+
+=> **is this a true difference? or due to noise of the data?**
+
+to check this, you need to use `statistics`.
+
+
+
+## Correlation vs Causation
+
+<u>**Correlation** doesn't imply **Causation**.</u>
+
+
+
+To find out whether what one change causes another, you need to run an experiment, called **A/B test**.
+
+
+
+## Making Prediction
+
+Some points that make prediction difficult
+
+- Lots of different pieces of information to look at
+- Features can interact
+
+=> Machine learning can make predictions automatically.
+
+
+
+## Communication
+
+**What findings are most interesting?** - Some differences
+
+**How will you present them?** - Report average, Show histogram
+
+
+
+### seaborn - make plots look nicer
+
+with command `conda install seaborn`, you can install seaborn to make your plots look better.
+
+
+
+---
+
+## Data Science vs Data Engineering vs Big Data
+
+### Data Science
+
+Similar to data analysis but more focused on **building systems**
+
+
+
+### Data Engineering
+
+More focused on **data wrangling**
+
+This involves **data storage** and **processing**
+
+
+
+## Big Data
+
+Fuzzy term of '**a lot**' of data
+
+Data analysists, scientists, and engineers can work with big data
