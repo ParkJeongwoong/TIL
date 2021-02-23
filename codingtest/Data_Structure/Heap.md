@@ -176,3 +176,60 @@ while heap:
 
 
 
+## 우선순위 큐
+
+힙을 응용해서 우선순위 큐를 만들 수 있다.
+
+maxheap, minheap의 pop을 활용하여 우선 순위가 높은 항목부터 꺼내 쓸 수 있다.
+
+(**어짜피 최대/최소값 하나만 반환돼서 우선순위 별 내부 정렬이 필요없다.**)
+
+
+
+### 기본 모듈 queue.PriorityQueue
+
+https://www.daleseo.com/python-priority-queue/
+
+---
+
+- 사용
+
+```python
+from queue import PriorityQueue
+```
+
+- 생성
+
+```python
+que = PriorityQueue()
+```
+
+- 추가
+
+```python
+que.put(4)
+que.put(1)
+que.put(7)
+que.put(3)
+```
+
+- 삭제
+
+```python
+print(que.get())  # 1
+print(que.get())  # 3
+print(que.get())  # 4
+print(que.get())  # 7
+```
+
+- 정렬 기준 변경
+
+```python
+que.put((3, 'Apple')) # 우선순위, 값
+que.put((1, 'Banana'))
+que.put((2, 'Cherry'))
+
+print(que.get()[1])  # Banana
+print(que.get()[1])  # Cherry
+print(que.get()[1])  # Apple
+```
