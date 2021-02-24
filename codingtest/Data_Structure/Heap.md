@@ -15,6 +15,8 @@
 
 ## 구현
 
+### 코드1
+
 ```python
 class heap: # Maxheap
     def __init__(self):
@@ -112,6 +114,73 @@ print(heaps.pop())
 -1
 -1
 ```
+
+### 코드2
+
+하지만 위의 코드는 틀렸다.
+
+왜냐,
+
+pop을 할 때 마지막 요소를 루트 위치로 옮기고 나서 자식과 비교를 할 때,
+
+왼쪽 자식이 더 크면, 오른쪽 자식이 왼쪽 자식보다 더 커도 왼쪽과 자리 교환을 하기 때문
+
+
+
+따라서 다음 코드가 옳다. (heapq보다는 현저히 느리지만 정확하다는 것에 의의를 두자)
+
+```python
+class heap: # Maxheap
+    def __init__(self):
+        self.queue = []
+
+    # 삽입
+    def push(self,n): # 값 추가
+        self.queue.append(n)
+        idx = len(self.queue)-1
+        while idx:
+            if self.queue[idx] > self.queue[(idx-1)//2]:
+                self.queue[idx], self.queue[(idx-1)//2] = self.queue[(idx-1)//2], self.queue[idx]
+                idx = (idx-1)//2
+            else:
+                break
+
+    # 반환
+    def pop(self): # root값 반환 // 이후 맨 마지막 값을 root에 넣고 재정렬
+        if len(self.queue) == 0: # 큐가 비어있을 때
+            return 0
+
+        self.queue[0], self.queue[-1] = self.queue[-1], self.queue[0]
+        p = self.queue.pop()
+        self.heapify()
+        return p
+
+	# 정렬
+    def heapify(self): # 재정렬
+        idx = 0
+        while 2*idx + 1 < len(self.queue): # 적어도 왼쪽이랑은 비교할 수 았어야 가치가 있다.
+            if 2*idx + 2 < len(self.queue) and (self.queue[idx] < self.queue[2*idx + 2] or self.queue[idx] < self.queue[2*idx + 1]): # 양쪽 비교 가능 & 둘 중 하나가 더 큼
+                if self.queue[2*idx + 2] > self.queue[2*idx + 1]:
+                    self.queue[idx], self.queue[2*idx + 2] = self.queue[2*idx + 2], self.queue[idx]
+                    idx = 2*idx + 2
+                else:
+                    self.queue[idx], self.queue[2*idx + 1] = self.queue[2*idx + 1], self.queue[idx]
+                    idx = 2*idx + 1
+            elif self.queue[idx] < self.queue[2*idx + 1]: # 왼쪽 자식만 비교
+                self.queue[idx], self.queue[2*idx + 1] = self.queue[2*idx + 1], self.queue[idx]
+                idx = 2*idx + 1
+            else:
+                break
+        # 근데 만약 왼쪽부터 바꿔버렸는데, 오른쪽 자식이 더 컸다면?
+        if len(self.queue) > 2 and self.queue[0] < self.queue[2]:
+            self.heapify()
+
+	# 출력
+    def show(self):
+        print(self.queue)
+```
+
+
 
 
 
