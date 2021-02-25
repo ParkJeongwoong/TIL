@@ -37,14 +37,26 @@ N(1 ≤ N ≤ 10,000,000)
 ## 코드
 
 ```python
-FAILED
+import sys
+input = sys.stdin.readline
+
+N = int(input())
+
+num_list = [0] *  10001
+for i in range(N):
+    num_list[int(input())] += 1
+
+for n in range(1,10001):
+    while num_list[n]:
+        print(n)
+        num_list[n] -= 1
 ```
 
 
 
 ## 설명
 
-- 풀지 못함 (메모리 초과)
+- Counting Sort 사용
 
 
 
