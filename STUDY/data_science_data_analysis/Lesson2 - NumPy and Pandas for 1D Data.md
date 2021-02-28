@@ -5,7 +5,7 @@
 - Pandas : Series - More features
 - NumPy : Array - Simpler
 
-### Numpy
+## Numpy
 
 Numpy Arrays and Python Lists
 
@@ -14,23 +14,57 @@ Numpy Arrays and Python Lists
 
 
 
-#### `np.argmax`
+### `np.argmax`
 
 returns <u>index of maximum value</u>
 
 
 
-#### Add Vector
+### Add Vector
 
 `[1,2,3] + [4,5,6] = [5,7,9]`
 
 
 
-#### Multiply by a scalar
+#### <u>What is Vector?</u>
+
+> Array with numerical elements
+
+
+
+### Multiply by a scalar
 
 `[1,2,3] * 3 = [3,6,9]`
 
 
+
+### Available Math Operations
+
+Add(`+`) / Subtract(`-`) / Multiply(`*`) / Divide(`/`) / Exponentiate(`**`)
+
+
+
+### Logical Operations
+
+And(`&`) / Or(`|`) / Not(`~`)
+
+
+
+### Comparison Operations
+
+Greater(`>`) / Less(`<`) / Equal(`==`) / Not equal(`!=`)
+
+
+
+## Standardize
+
+Use **Standard Deviation** which is square root of **variance**
+
+```python
+def standardize_data(values):
+    standardized_values = (values-values.mean()) / values.std()
+    return standardized_values
+```
 
 
 
