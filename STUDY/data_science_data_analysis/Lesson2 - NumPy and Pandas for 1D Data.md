@@ -68,3 +68,65 @@ def standardize_data(values):
 
 
 
+## +, +=
+
+`+=`는 객체 유지
+
+`+`는 새로운 객체에 값 저장
+
+
+
+## Pandas Series
+
+has more functionality like `s.describe()`
+
+
+
+### Pandas Indexes
+
+in Pandas, you can point certain data by giving index
+
+```python
+life_expectancy = pd.Series([74.7, 75., 83.4, 57.6], index = ['Albania', 'Algeria', 'Andorra', 'Angola'])
+```
+
+Now, each data matches with their country name and you can access value with index name and order.
+
+```python
+life_expectancy[0] == life_expectancy.loc['Albania'] == life_expectancy.iloc[0]
+```
+
+
+
+## Remove missing values
+
+1. use .dropna()
+2. before addition, treat missing value as 0
+
+
+
+## apply() - `Pandas`
+
+`apply()` takes a series and a function and returns a new series
+
+(it works like `map()` in python)
+
+
+
+there's a series named `s`
+
+and you can write `s.apply(add3)` to express `s+3`
+
+
+
+```python
+def reverse_name(name): # function for elements
+    split_name = name.split(' ')
+    first_name = split_name[0]
+    last_name = split_name[1]
+    return last_name + ', ' + first_name
+
+def reverse_namse(names):
+    return names.apply(reverse_name) # with apply, you can apply function to each elements
+```
+
