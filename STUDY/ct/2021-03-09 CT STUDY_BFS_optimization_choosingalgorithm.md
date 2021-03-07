@@ -396,3 +396,140 @@ solve()
 
 padding을 준 것?
 
+
+
+## 파이프 옮기기 1
+
+https://www.acmicpc.net/problem/17070
+
+어떤 알고리즘을 쓸 지 결정하는 것의 중요성
+
+### 코드1_DFS
+
+```python
+import sys
+input = sys.stdin.readline
+
+# state = 0, 1, 2 # 가로, 세로, 대각선
+# # 끝 점만 보면 됨
+# if state = 0
+# if 오른쪽
+#     오른쪽 + 1
+#     if 오른쪽, 아래, 오른쪽아래
+#         오른쪽아래 + 1
+
+# if state = 1
+# if 아래
+#     아래 + 1
+#     if 오른쪽, 아래, 오른쪽아래
+#         오른쪽아래 + 1
+
+# if state = 2
+# if 오른쪽
+#     오른쪽 + 1
+# if 아래
+#     아래 + 1
+# if 오른쪽, 아래, 오른쪽아래
+#     오른쪽아래 + 1
+
+N = int(input())
+room = [list(map(int,input().split())) for _ in range(N)]
+stack = [(0,1,0)] # 시작점
+goal = 0
+
+while stack:
+    r,c, state = stack.pop()
+
+    if state == 0: # 가로
+        if c+1 < N and room[r][c+1] == 0:
+            if (r,c+1) == (N-1,N-1): # 도착
+                goal += 1
+            else:
+                stack.append((r,c+1,0))
+            if r+1 < N and room[r+1][c] == 0 and room[r+1][c+1] == 0:
+                if (r+1,c+1) == (N-1,N-1): # 도착
+                    goal += 1
+                else:
+                    stack.append((r+1,c+1,2))
+    elif state == 1: # 세로
+        if r+1 < N and room[r+1][c] == 0:
+            if (r+1,c) == (N-1,N-1): # 도착
+                goal += 1
+            else:
+                stack.append((r+1,c,1))
+            if c+1 < N and room[r][c+1] == 0 and room[r+1][c+1] == 0:
+                if (r+1,c+1) == (N-1,N-1): # 도착
+                    goal += 1
+                else:
+                    stack.append((r+1,c+1,2))
+    elif state == 2: # 대각선
+        if c+1 < N and room[r][c+1] == 0:
+            if (r,c+1) == (N-1,N-1): # 도착
+                goal += 1
+            else:
+                stack.append((r,c+1,0))
+        if r+1 < N and room[r+1][c] == 0:
+            if (r+1,c) == (N-1,N-1): # 도착
+                goal += 1
+            else:
+                stack.append((r+1,c,1))
+        if c+1 < N and r+1 < N and room[r][c+1] == 0 and room[r+1][c] == 0 and room[r+1][c+1] == 0:
+                if (r+1,c+1) == (N-1,N-1): # 도착
+                    goal += 1
+                else:
+                    stack.append((r+1,c+1,2))
+
+print(goal)
+```
+
+`424 ms` `124244 KB` `PyPy3`
+
+- DFS를 사용하여 접근
+- 시간초과 발생
+- pypy3를 사용하여 424 ms만에 해결
+
+
+
+### 코드2_DP
+
+```python
+import sys
+input = sys.stdin.readline
+
+N = int(input())
+room = [[[i,i,i] for i in list(map(int,input().split()))] for _ in range(N)]
+
+if room[N-1][N-1][0] == 1:
+    print(0)
+else:
+    # DP로 접근
+    room[0][1] = [-1,0,0] # 가로, 세로, 대각선
+    for r in range(N):
+        for c in range(2,N):
+            if room[r][c][0] == 0 and room[r][c-1][0] != 1:
+                room[r][c][0] += room[r][c-1][0] + room[r][c-1][2]
+
+            if r > 0 and room[r][c][1] == 0 and room[r-1][c][1] != 1:
+                    room[r][c][1] += room[r-1][c][1] + room[r-1][c][2]
+
+            if r > 0 and room[r][c][2] == 0 and room[r-1][c][2] != 1 and room[r][c-1][2] != 1 and room[r-1][c-1][2] != 1:  
+                    room[r][c][2] += room[r-1][c-1][0] + room[r-1][c-1][1] + room[r-1][c-1][2]
+
+    print(-sum(room[N-1][N-1]))
+```
+
+`72 ms` `28776 KB` `Python3`
+
+- DFS로 겨우 문제를 해결한 뒤 다른 정답자들의 코드를 확인 -> 모두 DP로 해결 / 문제 분류도 DP인 것을 확인
+
+
+
+### 결론
+
+- 가능한 방법들을 생각해보고 그 중 가장 효율적인 방법을 생각하는 연습이 필요
+
+- DP가 가능하다면 당연히 O(N)번을 진행하는 DP가 DFS보다 훨씬 빠름
+
+
+
+- 애초에 DP가 가능하다는 것을 파악하지 못했던 게 문제
