@@ -278,3 +278,123 @@ grid 시작점 조정 (공간을 만듦)
 <div class="box col-4 offset-4">1</div>
 ```
 
+---
+
+### Animation
+
+mdn - animation 항목을 통해 animation 경험
+
+```css
+div {
+    border: 2px solid black;
+    background-color: brown;
+    width: 100px;
+    height: 100px;
+    display: inline-block;
+    animation: movem color-change;
+    animation-duration: 3s;
+    animation-fill-mode: forwards; /* 마지막 위치에 고정 */
+}
+@keyframes move {
+    0% {
+        margin-left: 0px;
+    }
+    100% {
+        margin-left: 200px;
+    }
+}
+@keyframes color-change {
+    from {
+        background-color: brow;
+    }
+    to {
+        background-color: blue;
+    }
+}
+```
+
+3초 동안 오른쪽으로 이동하면서 색변화
+
+(정확히는 margin의 값을 200까지 변경하면서 움직이는 척 하는 것)
+
+- https://animate.style/에서 animation 관련 cdn을 받아 사용할 수 있다.
+
+## font
+
+google fonts를 통해 새로운 폰트 사용 가능 (https://fonts.google.com/)
+
+마음에 드는 폰트에서 select this style을 누르면 해당 폰트 cdn 주소 복사 가능
+
+```html
+<head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Dokdo&display=swap" rel="stylesheet">
+	<style>
+        h1 {
+            font-family: Nanum Pen Script;
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        안녕하세용!
+    </h1>
+</body>
+```
+
+### Bootstrap Icons
+
+- 부트스트랩에서 cdn을 통해 아이콘을 사용할 수 있다.
+
+(https://icons.getbootstrap.com/)
+
+이 때 아이콘은 글자처럼 취급 => font-size로 크기 조절, color로 색깔 조절
+
+\<i>태그는 이탤릭체를 나타내는데, em태그 때문에 i태그가 안 쓰이면서 아이콘에 사용
+
+```html
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <i class="bi bi-alarm"></i>
+	<i class="bi bi-brightness-alt-high-fill" style="font-size: 5rem; color: yellow;"></i>
+</body>
+```
+
+- 더 많은 아이콘이 필요하다면, 어제 배운 font awsome에서 구할 수 있다.
+
+
+
+## Modal
+
+부트스트랩에서 Modal을 이용하면 팝업창이 뜨게 만들 수 있다.
+
+(자바스크립트인데, 부트스트랩에서 지원)
+
+- 모달의 구성
+  - 버튼 - 모달
+    - 이 때, id를 활용
+
+
+
+## Carousel
+
+부트스트랩에서 Carousel을 이용해서 사진을 움직일 수 있다.
+
+### JavaScript naming rule
+
+- 소문자로 시작, 중간중간 대문자를 넣음
+
+
+
+## Navbar
+
+클릭해서 메뉴가 나오게 만드는 것
+
+
+
+## 참고
+- 모달은 body 바깥에서 동작
+- 모달 버튼의 속성은 다른 태그에서도 활용 가능
+- flex는 block, none, inline, inline-block 처럼 display의 속성 중 하나
