@@ -1,0 +1,413 @@
+# 2021-03-16 CT STUDY
+
+
+
+## 소가 길을 건너간 이유 4
+
+https://www.acmicpc.net/problem/14464
+
+미스터리
+
+> 17번의 시도 끝에 PyPy3로 맞춘 문제 / 정말 모든 시도를 다 해봤다
+
+> 너무 많은 시도를 했었기 때문에 대표성을 가진 몇 개의 코드만 아래에 적었다
+
+### 코드1
+
+```python
+import sys
+input = sys.stdin.readline
+
+def canyouhelp(chicken_cow):
+    if chicken_cow[1][0] <= chicken_cow[0][0] <= chicken_cow[1][1] and ialreadyhelped[chicken_cow[0][1]] != 1:
+        return True
+    return False
+
+C, N = map(int,input().split())
+
+chickens = [(int(input()),c) for c in range(C)]
+cows = [list(map(int,input().split())) for c in range(N)]
+
+chickens.sort()
+cows.sort(key=lambda x: x[1])
+
+ialreadyhelped = [0]*C
+count = 0
+
+for i in range(N):
+    icanhelp = list(filter(canyouhelp,[(chicken,cows[i]) for chicken in chickens]))
+    
+    if icanhelp:
+        ialreadyhelped[icanhelp[0][0][1]] = 1
+        count += 1
+        
+print(count)
+```
+
+`시간 초과`
+
+- 일단 이 문제는 '활동-선택 가능 문제'이다
+
+1. 따라서 cows를 종료시간에 대해 오름차순으로 정렬하고, chickens도 정렬한다
+
+2. 그리고 chicken을 하나씩 넣으며 cow의 범위 안에 있는 chicken을 모아 리스트로 만들고
+
+3. 그리고 그 리스트에서 가장 작은 값을 선택한다
+
+
+
+이 코드가 틀린 이유 : **모든 chicken에 대해 리스트를 만들 필요는 없다.**
+
+
+
+### 코드2
+
+```python
+import sys
+input = sys.stdin.readline
+
+def canyouhelp(chicken, cow):
+    if cow[0] <= chicken[0] and chicken[0] <= cow[1] and ialreadyhelped[chicken[1]] != 1:
+        return True
+    return False
+
+C, N = map(int,input().split()) # C <= 20,000 N <= 20,000
+
+chickens = [(int(input()),c) for c in range(C)]
+cows = [list(map(int,input().split())) for c in range(N)]
+
+chickens.sort()
+cows.sort(key=lambda x: x[1])
+
+ialreadyhelped = [0]*C
+count = 0
+
+for i in range(N):
+    for j in range(C):
+        if canyouhelp(chickens[j],cows[i]):
+            ialreadyhelped[chickens[j][1]] = 1
+            count += 1
+            break
+        
+print(count)
+```
+
+`시간 초과`
+
+- 위의 코드에서 2번을 생략하고 최소 chicken을 찾으면 바로 다음 cow로 넘어가도록 구상했지만 시간초과가 났다.
+
+- 왜 틀렸는지 솔직히 아직도 모르겠다. def를 쓴 게 은근히 시간이 많이 걸리나..?
+
+
+
+### 코드3
+
+```python
+import sys
+input = sys.stdin.readline
+
+C, N = map(int,input().split()) # C <= 20,000 N <= 20,000
+
+chickens = [0] * 1000000001
+for c in range(C):
+    chickens[int(input())] += 1
+
+cows = sorted([list(map(int,input().split())) for c in range(N)], key=lambda x: x[1])
+
+count = 0
+
+for a,b in cows:
+    for i in range(a,b+1):
+        if chickens[i] > 0:
+            chickens[i]-=1
+            count+=1
+            break
+        
+print(count)
+```
+
+`메모리 초과`
+
+- 시간 초과가 지긋지긋해서 메모리를 희생해서 chickens의 정렬도 필요없이 바로 구할 수 있는 코드를 작성했지만 메모리 초과가 났다.
+
+
+
+### 코드4
+
+```python
+import sys
+import heapq
+input = sys.stdin.readline
+
+C, N = map(int,input().split()) # C <= 20,000 N <= 20,000
+count = 0
+
+chickens = [int(input()) for c in range(C)]
+heapq.heapify(chickens)
+
+cows = sorted([list(map(int,input().split())) for c in range(N)], key=lambda x: x[1])
+
+
+for a,b in cows:
+    notused = []
+    for i in range(C-count):
+        n = heapq.heappop(chickens)
+        if n >= a and n <= b:
+            count+=1
+            break
+        heapq.heappush(notused,n)
+    else:
+        chickens = notused
+        continue
+    for j in range(i,C-count):
+        heapq.heappush(notused,heapq.heappop(chickens))
+    chickens = notused
+        
+print(count)
+```
+
+`시간 초과`
+
+- cow의 경우 최소값만 찾으면 되니 heap을 사용해보았지만 실패했다.
+
+
+
+### 최종 코드
+
+```python
+import sys
+input = sys.stdin.readline
+import heapq
+
+C, N = map(int,input().split()) # C <= 20,000 N <= 20,000
+count = 0
+
+chickens = sorted([int(input()) for c in range(C)])
+cows = []
+for i in range(N):
+    a,b = map(int,input().split())
+    heapq.heappush(cows,(b,a))
+
+helped = [0]*C
+idx = 0
+for i in range(N):
+    # 이진 탐색
+    b, a = heapq.heappop(cows)
+    left = 0
+    right = C-1
+    
+        
+    while left <= right:
+        idx = (left+right)//2
+        if chickens[idx] == a and helped[idx] == 0:
+            count += 1
+            helped[idx] = 1
+            break
+        elif chickens[idx] < a:
+            left = idx+1
+        else:
+            right = idx-1
+    else:
+        while chickens[idx] < a or helped[idx]:
+            idx += 1
+            if idx == C:
+                break
+        else:
+            if chickens[idx] <= b:
+                count += 1
+                helped[idx] = 1
+            
+        
+print(count)
+```
+
+`416 ms` `PyPy3`
+
+- 이진탐색으로 시도했을 때 Python3는 81%까지 올라갔찌만 결국 또 시간초과가 떴다.
+
+- 81% 까지 갔던 코드를 그대로 PyPy3로 제출하니 통과했다. (심지어 PyPy3 중 가장 빠른 코드다)
+
+
+
+### 연결리스트 이진탐색트리 코드 (미완)
+
+```python
+import sys
+import heapq
+input = sys.stdin.readline
+
+C, N = map(int,input().split()) # C <= 20,000 N <= 20,000
+count = 0
+
+chickens = {}
+chickens[0] = [int(input()),-1,-1,-1] # root node // value, parent, left, right
+for c in range(1,C):
+    idx = 0
+    value = int(input())
+    left = 0
+    while chickens.get(idx):
+        if value > chickens[idx][0]:
+            idx = idx*2 + 2
+            left = 0
+        else:
+            idx = idx*2 + 1
+            left = 1
+    chickens[idx] = [value,(idx-1)//2,-1,-1]
+    if left:
+        chickens[(idx-1)//2][2] = idx
+    else:
+        chickens[(idx-1)//2][3] = idx
+
+
+cows = []
+for n in range(N):
+    a,b = map(int,input().split())
+    heapq.heappush(cows, (b,a))
+
+for j in range(N):
+    print(j, chickens)
+    b, a = heapq.heappop(cows)
+    print(a,b)
+    idx = 0
+    value = chickens.get(idx)
+    candidate = None
+    cand_i = None
+    parent = 0
+    while value:
+        if value[0] < a:
+            idx = value[3] # value 높이기
+        elif value[0] > a:
+            cand_i = idx
+            candidate = value[0]
+            idx = value[2] # value 낮추기
+        else:
+            cand_i = idx
+            candidate = value[0]
+            break
+        value = chickens.get(idx)
+    # a 보다 큰 candidate 확보
+    if candidate > b or not candidate:
+        continue # 조건을 만족 X
+    count += 1
+    print('후보',cand_i)
+    # 자식 0개
+    if chickens[cand_i][2] == -1 and chickens[cand_i][3] == -1:
+        chickens[chickens[cand_i][1]][chickens[chickens[cand_i][1]].index(cand_i,2)] = -1
+        chickens.pop(cand_i)
+    # 자식 2개 존재
+    elif chickens[cand_i][3] > 0 and chickens[cand_i][2] > 0:
+        switch = chickens[cand_i][3]
+        while True:
+            if chickens[switch][2] > 0:
+                switch = chickens[switch][2]
+            elif chickens[switch][3] > 0:
+                switch = chickens[switch][3]
+            else:
+                l, r = chickens[cand_i][2], chickens[cand_i][3]
+                chickens[chickens[switch][1]][chickens[chickens[switch][1]].index(switch,2)] = -1                
+                chickens[cand_i] = [chickens.pop(switch)[0],l,r]
+                break
+    else:
+        if chickens[cand_i][3] > 0:
+            chickens[chickens[cand_i][1]][chickens[chickens[cand_i][1]].index(cand_i,2)] = chickens[cand_i][3]
+            chickens[chickens[cand_i][3]][1] = chickens[cand_i][1]
+        else:
+            chickens[chickens[cand_i][1]][chickens[chickens[cand_i][1]].index(cand_i,2)] = chickens[cand_i][2]
+            chickens[chickens[cand_i][2]][1] = chickens[cand_i][1]
+
+
+            
+
+        
+print(count)
+```
+
+- 연결 리스트를 활용한 이진 탐색 트리를 구현한다면 무조건 logN시간만에 찾을 수 있다고 생각해서 구현하던 중 삭제의 경우의 수가 너무 복잡해져 이진탐색을 시도했다.
+- 다시 생각해보니 그냥 리스트에서 이진탐색을 하는 게 더 나은 것 같다. (코드 길이를 보니 무조건 시간초과가 뜰 것 같은 예감이 들었다.)
+
+
+
+### 백준 코드
+
+```python
+from sys import stdin
+input = stdin.readline
+import heapq
+
+c, n = map(int,input().split())
+chicken = [int(input()) for i in range(c)]
+chicken.sort()
+cows = [tuple(map(int,input().split())) for i in range(n)]
+cows.sort()
+
+usable = []
+helped = 0
+j = 0
+for i in chicken:
+    while j < n and i >= cows[j][0]:
+        heapq.heappush(usable, cows[j][::-1])
+        j+= 1
+    while usable and usable[0][0] < i:
+        heapq.heappop(usable)
+    if usable:
+        heapq.heappop(usable)
+        helped+= 1
+print(helped)
+```
+
+[jh05013](https://www.acmicpc.net/user/jh05013) `140 ms` `Python3` (말도 안 되게 빠른 코드)
+
+- cow를 그냥 시작시간에 대해 정렬
+- cow가 아닌 chicken에 대해 for문을 돌림
+- chicken보다 시작시간이 빠른 cow들을 heap에 추가 / 이 때 종료시간에 대해 heap 정렬
+- 종료시간이 낮은 cow부터 꺼내며 종료시간이 chicken보다 작으면 제거
+- 조건을 만족하는 cow가 생기면 추가
+
+
+
+- cow를 중복 사용하는데 괜찮은가?? 동일 cow에 여러 chicken이 달라붙는 경우는 어떡하지?
+
+  - 만약 cow가 (1,5), (4,6)이고 chicken이 1, 2라면 첫 번째 cow가 chicken 1, 2에 모두 적용되는 게 아닌가?
+
+    - 시도해보니 괜찮음. 왜??
+
+      - <u>이거 때매 처음에 시작시간으로 정렬하고 j 인덱스를 usable에 넣을 때마다 증가시켜 줬던 것</u>. **cow는 중복이 안 됨**
+
+      - 그리고 나중에 쓰일 cow를 미리 usable에 넣었다 하더라도, usable은 변형되지 않으므로 미리 넣은 cow가 사라지지는 않음
+
+        (cow는 (1,5), (0,6)이고 chicken이 1,2일 때)
+
+
+
+```python
+import sys
+
+C, N = map(int, input().split())
+chick = [int(sys.stdin.readline()) for _ in range(C)]
+cow = [list(map(int, sys.stdin.readline().split())) for _ in range(N)]
+answer = 0
+
+chick.sort()
+cow.sort(key=lambda x: (x[1], x[0]))
+check = [True for _ in range(N)]
+i, j = 0, 0
+
+while i < N:
+    a, b = cow[i]
+
+    for k in range(j, len(chick)):
+        if a <= chick[k] <= b:
+            answer += 1
+            del chick[k]
+            break
+
+    i += 1
+
+print(answer)
+```
+
+[wow1548](https://www.acmicpc.net/user/wow1548) `6224 ms` `Python3`
+
+- 굉장히 간단한 코드
+- 저렇게 del을 그냥 써도 되는 줄 몰랐다. (리스트의 indexing이 다시 일어나면서 시간이 걸릴 줄 알았는데...)
+  - 일단 찾아보니 속도가 `del > remove > pop`인 걸 확인했다. 근데 그렇게 차이가 벌어지나..?
