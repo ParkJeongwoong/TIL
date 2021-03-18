@@ -49,3 +49,8 @@
 
 ---
 
+## Form에 대한 이해
+
+- model_form의 구조 => `form = ArticleForm(request.POST)` : form 변수에 request.POST를  모델폼 클래스로 만들어 놓는다
+
+- `article = form.save()`에서 form.save()가 데이터 저장, article은 아래 return 구문에서 `redirect('detail', pk=reserved.pk)`로 쓰려고 넣는다.
