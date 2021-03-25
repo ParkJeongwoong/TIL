@@ -49,7 +49,7 @@
 
 
 
-## Form에 대한 이해
+## Form
 
 - model_form의 구조 => `form = ArticleForm(request.POST)` : form 변수에 request.POST를 모델폼 클래스로 만들어 놓는다
 - `article = form.save()`에서 form.save()가 데이터 저장, article은 아래 return 구문에서 `redirect('detail', pk=reserved.pk)`로 쓰려고 넣는다.
@@ -63,9 +63,13 @@
 
 
 
-
-
 ## 프로젝트 작성 예시
+
+1. Root에 templates 추가 / base.html
+2. app에 templates/app 추가 / index, form, detail / login, signup, profile
+3. app에 urls.py, forms.py 추가
+
+
 
 ### Model
 
@@ -111,6 +115,7 @@ class AppeForm(forms.ModelForm):
     class Meta:
         model = AppModel
         fields = '__all__'
+        # exclude = ('certain_field',)
 ```
 
 
@@ -123,15 +128,16 @@ class AppeForm(forms.ModelForm):
 INSTALLED_APPS = [
     'app1',
     'accounts',
+    
+    'django_extensions',
 ###################################################################
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [ BASE_DIR / 'templates' ],
 ###################################################################
+        
 STATIC_URL = '/static/'
-
-AUTH_USER_MODEL = 'accounts.CustomUser' # 커스텀 유저 모델 설정
 ```
 
 
@@ -155,23 +161,6 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('app1/', include('app1.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # Media 추가
-```
-
-- urls.py - accounts
-
-```python
-from django.urls import path
-from . import views
-
-app_name = 'accounts'
-
-urlpatterns = [
-    path('profile/<str:username>', views.profile, name='profile'),
-    path('signup/', views.signup, name='signup'),
-    path('login/', views.login, name='login'),
-    path('logout/', views.logout, name='logout'),
-    path('force_logout/', views.force_logout, name='force_logout'),
-]
 ```
 
 - urls.py - app1
@@ -199,7 +188,7 @@ urlpatterns = [
 - views.py - app1
 
 ```python
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods, require_POST
 from .models import Article
 from .forms import ArticleForm
@@ -232,7 +221,7 @@ def create(request):
 
 @require_safe
 def detail(request, app1_pk):
-    article = Article.objects.get(pk=app1_pk)
+    article = get_object_or_404(Article, pk=app1_pk)
     context = {
         'article': article,
     }
@@ -249,7 +238,7 @@ def delete(request, app1_pk):
 
 @require_http_methods(['GET', 'POST'])
 def update(request, app1_pk):
-    article = Article.objects.get(pk=app1_pk)
+    article = get_object_or_404(Article, pk=app1_pk)
     
     if request.method == 'POST':
         form = ArticleForm(request.POST, instance=article)
@@ -285,7 +274,18 @@ class AppAdmin(admin.ModelAdmin):
     list_display = ('pk', 'title', 'content', 'created_at', 'updated_at',) # 튜플이나 리스트로 작성
 
 # Register your models here.
-admin.site.register(AppModel, AppAdmin) # admin site에 AppAdmin을 register
+admin.site.register(AppModel, UserAdmin) # admin site에 AppAdmin을 register
+# admin.site.register(AppModel) # AppAdmin이 없으면 이것도 가능
+```
+
+- Custom User 등록 후 : 이렇게 해야 admin 페이지에서 Custom User를 관리 가능
+
+```python
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import CustomUser
+
+admin.site.register(CustomUser, UserAdmin)
 ```
 
 
@@ -304,9 +304,10 @@ admin.site.register(AppModel, AppAdmin) # admin site에 AppAdmin을 register
 
 ```python
 # STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'pjt_app' / 'static',
-]
+STATICFILES_DIRS = [ 
+    BASE_DIR / 'articles' / 'static',
+    BASE_DIR / 'static',
+    ]
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
@@ -325,6 +326,28 @@ class Article(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 ```
+
+- views.py
+  - Media를 추가하려면 request.FILES를 넣어야 한다
+
+```python
+@require_http_methods(['POST', 'GET'])
+def create(request):
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, request.FILES) # Media를 추가하려면 request.FILES를 넣어야 한다
+        if form.is_valid():
+            article = form.save()
+            return redirect('articles:detail', article.pk)
+    else:
+        form = ArticleForm()
+    
+    context = {
+        'form': form
+    }
+    return render(request, 'articles/form.html', context)
+```
+
+
 
 
 
@@ -363,7 +386,7 @@ class Article(models.Model):
     # image = models.ImageField(blank=True) # NULL = True는 DB가 빈 걸 인정 => 자동으로 ''가 저장됨 / blank=True는 ORM 단계에서 비어도 인정 / pillow가 필요하다
     # RESIZING
     image = ProcessedImageField(
-        uploaded_to='article/',
+        upload_to='articles/',
         blank=True,
         processors=[Thumbnail(200,300)],
         format='JPEG',
@@ -384,8 +407,9 @@ class Article(models.Model):
 
 !!!!!!!!! Custom User model을 만들면, settings에다가 **`AUTH_USER_MODEL = 'accounts.Custom_User_name'**`를 추가해야 함
 
-- `UserCreationForm`은 default User를 위한 form
-- `CustomUserCreationForm`이 custom User를 위한 form
+& `UserCreationForm`, `UserChangeForm`은 default User를 위한 form
+
+=>**`CustomUserCreationForm`, `CustomUserChangeForm`을 만들어 custom User를 위한 form을 만들어야 함**
 
 
 
@@ -404,6 +428,7 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username',]
+        # fields = UserCreationForm.Meta.fields + ('email', ) 이렇게도 추가 가능
 
 
 class CustomUserChangeForm(UserChangeForm):
@@ -436,85 +461,51 @@ class CustomUser(AbstractUser): #
 
 
 
+- settings.py
+
+```python
+###################################################################
+        
+AUTH_USER_MODEL = 'accounts.CustomUser' # 커스텀 유저 모델 설정
+```
+
+
+
+- urls.py - accounts
+
+```python
+from django.urls import path
+from . import views
+
+app_name = 'accounts'
+
+urlpatterns = [
+    path('profile/password/', views.change_password, name='change_password'),
+    path('profile/<str:username>/', views.profile, name='profile'),
+    path('signup/', views.signup, name='signup'),
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+    path('withdraw/', views.withdraw, name='withdraw'),
+    path('force_logout/', views.force_logout, name='force_logout'),
+]
+```
+
+
+
 - views.py - accounts
 
 ```python
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import get_user_model # User 모델 가져 옴
-from .forms import CustomUserCreationForm # 계정 생성 모델 폼
-from .forms import CustomUserCreationForm, CustomUserChangeForm # 계정 수정 모델 폼
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm # session 저장 폼 / 비밀번호 저장 폼
-from django.contrib.auth import login as auth_login # 로그인 함수
-from django.contrib.auth import logout as auth_logout # 로그아웃 함수
+from django.views.decorators.http import require_safe, require_POST, require_http_methods
+from .forms import CustomUserCreationForm, CustomUserChangeForm
+from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-def index(request):
-    users = User.objects.all()
-    context = {'users': users, }
-    return render(request, 'accounts/index.html', context)
-
-
-def profile(request, username):
-    user = get_object_or_404(User, username=username)
-    context = {'user_profile': user, }
-
-    if request.user == user:
-        if request.method == 'POST':
-            form = CustomUserChangeForm(request.POST, instance=user)
-            if form.is_valid():
-                form.save()
-                return redirect('accounts:profile', username=user.username)
-        else:
-            form = CustomUserChangeForm(instance=user)
-
-        context['form'] = form
-
-    return render(request, 'accounts/profile.html', context)
-
-
-@login_required
-def change_password(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-
-            from django.contrib.auth import update_session_auth_hash # 비밀번호 변경 후 로그아웃을 방지하는 코드
-            update_session_auth_hash(request, form.user) # 근데 잘 안 되나..?
-
-            form.save()
-            return redirect('accounts:profile', request.user.username)
-    else:
-        form = PasswordChangeForm(request.user)
-
-    context = {'form': form, }
-    return render(request, 'accounts/change_password.html', context)
-
-
-def login(request):
-    if request.user.is_authenticated:
-        return redirect('accounts:index')
-
-    if request.method == 'POST':
-        form = AuthenticationForm(request, request.POST)
-        if form.is_valid():
-            # user_found_in_db = form.get_user()
-            # auth_login(request, user_found_in_db)
-            auth_login(request, form.get_user()) # 반복을 피함
-
-            # next_url = request.GET.get('next') # 다음으로 가야할 url이 있으면 / 없으면 None
-            # return redirect(next_url or 'articles:index') # 단축 평가 활용
-            return redirect(request.GET.get('next') or 'articles:index') # 반복을 피함
-
-    else:
-        form = AuthenticationForm()
-    context = {'form': form, }
-    return render(request, 'accounts/login.html', context)
-
-
-
+@require_http_methods(['GET', 'POST'])
 def signup(request):
     if request.user.is_authenticated:
         return redirect('articles:index')
@@ -524,19 +515,57 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             auth_login(request, user)
-            return redirect('accounts:profile', user.username)
-
+            return redirect('articles:index')
     else:
         form = CustomUserCreationForm()
-    context = { 'form': form, }
-
+    context = {
+        'form': form,
+    }
     return render(request, 'accounts/signup.html', context)
 
 
+@require_http_methods(['GET', 'POST'])
+def login(request):
+    if request.user.is_authenticated:
+        return redirect('articles:index')
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            auth_login(request, form.get_user())
+            next_url = request.GET.get('next') # next url 처리
+            return redirect(next_url or 'articles:index')
+    else:
+        form = AuthenticationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/login.html', context)
+
 
 def logout(request):
-    auth_logout(request)    
+    auth_logout(request)
     return redirect('articles:index')
+
+
+@login_required
+def profile(request, username):
+    user = get_object_or_404(User, username=username)
+    context = {
+        'user_profile': user,
+    }
+
+    if user == request.user:
+        if request.method == 'POST':
+            form = CustomUserChangeForm(request.POST, instance=user)
+            if form.is_valid():
+                form.save()
+                return redirect('accounts:profile', username)
+        else:
+            form = CustomUserChangeForm(instance=user)
+        context['form'] = form
+
+    return render(request, 'accounts/profile.html', context)
 
 
 @login_required
@@ -545,6 +574,27 @@ def withdraw(request):
     request.user.delete()
     auth_logout(request)
     return redirect('articles:index')
+
+
+from django.contrib.auth import authenticate
+@login_required
+@require_http_methods(['POST', 'GET'])
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST) # change_password Form은 request가 아니라 request.user를 받는다
+        if form.is_valid():
+            form.save()
+            # 재로그인
+            user = authenticate(username=request.user, password=request.POST)        
+            auth_login(request, user)
+            return redirect('accounts:profile', request.user.username)
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/change_password.html', context)
 
 
 
@@ -568,3 +618,191 @@ def force_logout(request):
     return redirect('articles:index')
 ```
 
+
+
+### Templates
+
+- Base,html
+
+```django
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %} <!-- static-->
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"> <!-- static-->
+  {% block head %}{% endblock head %}
+  <title>{% block title %}{% endblock title %}</title>
+</head>
+
+{% include '_navbar.html' %} <!-- 모듈화-->
+
+<div class="container">
+  {% block content %}
+  {% endblock content %}
+</div>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script> <!-- static-->
+<body>
+  
+</body>
+</html>
+```
+
+
+
+### Comment
+
+Comment는 Article과 관련된 class
+
+
+
+- models.py - articles
+  - 여기서는 유저를 참조할 때 `settings.AUTH_USER_MODEL`를 사용해야 한다.
+
+```python
+from django.db import models
+from django.conf import settings
+
+# Comment를 위해 추가해야 하는 class
+class Article(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=10)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class Comment(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    content = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.content
+```
+
+
+
+- admin.py - articles
+
+```python
+# Comment 관리를 위해 추가해야 하는 코드
+from django.contrib import admin
+from .models import Comment
+
+admin.site.register(Comment)
+```
+
+
+
+- forms.py - articles
+
+```python
+# Comment 관리를 위해 추가해야 하는 코드
+from django import forms
+from .models import Article, Comment
+
+
+class ArticleForm(forms.ModelForm):
+
+    class Meta:
+        model = Article
+        fields = ('title', 'content')
+        
+
+class CommentForm(forms.ModelForm):
+
+    class Meta:
+        model = Comment
+        # fields = '__all__'
+        exclude = ('article',)
+```
+
+
+
+- urls.py - articles
+
+````python
+path('<int:pk>/comments/', views.comments_create, name='comments_create'),
+path('<int:pk>/comments/<int:comment_pk>/delete', views.comments_delete, name="comments_delete"),
+````
+
+
+
+- views.py - articles
+
+```python
+from .forms import CommentForm
+from .models import Comment
+
+@require_safe
+def detail(request, pk):
+    article = get_object_or_404(Article, pk=pk)
+    # Comment 구현
+    comment_form = CommentForm()
+    comments = article.comment_set.all()
+    context = {
+        'article': article,
+        'comment_form': comment_form,
+        'comments': comments,
+    }
+    return render(request, 'articles/detail.html', context)
+
+
+@require_POST
+def comments_create(request, pk):
+    if request.user.is_authenticated:
+        article = get_object_or_404(Article, pk=pk)
+        comment_form = CommentForm(request.POST) # 모델 폼
+        if comment_form.is_valid():
+            # Foreign key와 아직 연결이 X
+            comment = comment_form.save(commit=False) # form에서 받은 데이터로 instance는 만들지만 DB에 저장은 X
+            comment.article = article # 추가 데이터 instance에 저장
+            comment.save()
+            return redirect('articles:detail', article.pk)
+        context = {
+            'comment_form': comment_form,
+            'article': article,
+        }
+        return render(request, 'articles/detail.html', context) # 이렇게 해야 에러 메세지가 뜸
+    return redirect('accounts:login')
+
+
+@require_POST
+def comments_delete(request, pk, comment_pk):
+    if request.user.is_authenticated:
+        comment = get_object_or_404(Comment, pk=comment_pk)
+        comment.delete()
+        return redirect('articles:detail', pk)
+    return redirect('accounts:login')
+```
+
+
+
+- detail.html - articles
+
+```django
+<!-- Comments-->
+<hr>
+<h4> 댓글 목록</h4>
+<ul>
+  {% for comment in comments %}
+    <li>
+      {{ comment }}
+      <form action="{% url 'articles:comments_delete' article.pk comment.pk %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="DELETE">
+      </form>
+    </li>
+  {% endfor %}
+</ul>
+{% comment %}댓글 작성{% endcomment %}
+<form action="{% url 'articles:comments_create' article.pk %}" method="POST">
+  {% csrf_token %}
+  {{ comment_form }}
+  <input type="submit">
+</form>
+```
