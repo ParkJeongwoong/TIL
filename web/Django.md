@@ -493,6 +493,7 @@ urlpatterns = [
 
 
 - views.py - accounts
+  - delete 함수도 `@login_required`가 아니라 `is_authenticated`로 고쳐야 한다
 
 ```python
 from django.shortcuts import render, redirect, get_object_or_404
@@ -576,17 +577,14 @@ def withdraw(request):
     return redirect('articles:index')
 
 
-from django.contrib.auth import authenticate
 @login_required
 @require_http_methods(['POST', 'GET'])
 def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST) # change_password Form은 request가 아니라 request.user를 받는다
         if form.is_valid():
-            form.save()
-            # 재로그인
-            user = authenticate(username=request.user, password=request.POST)        
-            auth_login(request, user)
+            # 재로그인        
+            auth_login(request, form.save())
             return redirect('accounts:profile', request.user.username)
     else:
         form = PasswordChangeForm(request.user)
@@ -650,6 +648,13 @@ def force_logout(request):
 </body>
 </html>
 ```
+
+
+
+[유용한 HTML 팁]
+
+- request.user.username // 유저 이름
+- request.resolver_match.url_name == 'url_name' // 접근 방식
 
 
 
