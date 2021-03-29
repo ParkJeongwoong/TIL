@@ -778,7 +778,7 @@ def comments_create(request, pk):
 
 @require_POST
 def comments_delete(request, pk, comment_pk):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user == comment.user:
         comment = get_object_or_404(Comment, pk=comment_pk)
         comment.delete()
         return redirect('articles:detail', pk)
