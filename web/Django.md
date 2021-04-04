@@ -1,5 +1,13 @@
 # Django
 
+## 협업
+
+- **절대 master에는 push하지 않는다**
+  - 무조건 branch를 따서 branch를 push
+  - master push는 개인 작업할 때만 가능
+
+
+
 ## Django 환경 준비
 
 1. 빈 폴더(프로젝트 Root)를 만든다
@@ -811,3 +819,182 @@ def comments_delete(request, pk, comment_pk):
   <input type="submit">
 </form>
 ```
+
+
+
+### MtMField (Like, Follow)
+
+> Model에 ManyToManyField 추가
+
+- models.py - app1
+
+```python
+from django.db import models
+from django.conf import settings
+
+
+class Article(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='like_articles') # MtM Field 추가
+    title = models.CharField(max_length=10)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+```
+
+- urls.py - app1
+
+```python
+from django.urls import path
+from . import views
+
+
+app_name = 'articles'
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('create/', views.create, name='create'),
+    path('<int:article_pk>/', views.detail, name='detail'),
+    path('<int:article_pk>/delete/', views.delete, name='delete'),
+    path('<int:article_pk>/update/', views.update, name='update'),
+    path('<int:article_pk>/comments/', views.comments_create, name='comments_create'),
+    path('<int:article_pk>/comments/<int:comment_pk>/delete/', views.comments_delete, name='comments_delete'),
+    path('<int:article_pk>/likes/', views.likes, name='likes'), # MtM Field 추가
+]
+```
+
+- views.py - app1
+
+```python
+@require_POST
+def likes(request, article_pk):
+    if request.user.is_authenticated:
+        article = get_object_or_404(Article, pk=article_pk)
+
+        if article.like_users.filter(pk=request.user.pk).exists(): # 하나의 데이터만 확인 => 더 간단하고 빠른 수행
+        # if request.user in article.like_users.all(): # 쿼리셋 전체를 평가
+            # 좋아요 취소
+            article.like_users.remove(request.user)
+        else:
+            # 좋아요 누름
+            article.like_users.add(request.user)
+        return redirect('articles:index')
+    return redirect('accounts:login')
+```
+
+- index.html
+
+```django
+<!-- LIKE를 위해 추가되는 부분-->
+    <div>
+      <form action="{% url 'articles:likes' article.pk %}" method="POST">
+        {% csrf_token %}
+        {% if request.user in article.like_users.all %}0
+          <button>좋아요 취소</button>
+        {% else %}
+          <button>좋아요</button>
+        {% endif %}
+      </form>
+    </div>
+    <p>{{ article.like_users.all|length }}명이 이 글을 좋아합니다.</p>
+```
+
+
+
+- models.py - accounts
+
+```python
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+
+# Create your models here.
+class User(AbstractUser):
+    followings = models.ManyToManyField('self', symmetrical=False, related_name='followers')
+```
+
+- urls.py - accounts
+
+```python
+path('<int:user_pk>/follow/', views.follow, name='follow'),
+```
+
+- views.py - accounts
+
+```python
+@require_POST
+def follow(request, user_pk):
+    if request.user.is_authenticated:
+        # 팔로우 받는 사람
+        star = get_object_or_404(get_user_model(), pk=user_pk)
+        
+        if star != request.user: # 자신을 팔로우할 순 없음
+            if person.followers.filter(pk=request.user.pk).exists(): # 빠른 동작
+            # if request.user in person.followers.all():
+                # 팔로우 신청
+                person.followers.remove(request.user)
+            else:
+                # 팔로우 끊음
+                person.followers.add(request.user)
+
+        return redirect('accounts:profile', person.username)
+    return redirect('accounts:login')
+```
+
+- profile.html
+
+```django
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ person.username }}님의 프로필</h1>
+
+<div>
+  <div>
+    팔로잉 : {{ person.followings.all|length }} / 팔로워 : {{ person.followers.all|length }}
+  </div>
+  {% if request.user != person %}
+    <div>
+      <form action="{% url 'accounts:follow' person.pk %}" method="POST">
+        {% csrf_token %}
+        {% if request.user in person.followers.all %}
+          <button>언팔로우</button>
+        {% else %}
+          <button>팔로우</button>
+        {% endif %}
+      </form>
+    </div>
+  {% endif %}
+</div>
+
+<hr>
+
+<h2>{{ person.username }}님의 게시글</h2>
+
+{% for article in person.article_set.all %}
+  <div>{{ article.title }}</div>
+{% endfor %}
+
+<hr>
+
+<h2>{{ person.username }}님의 댓글</h2>
+
+{% for comment in person.comment_set.all %}
+  <div>{{ comment.content }}</div>
+{% endfor %}
+
+<hr>
+
+<h2>{{ person.username }}님의 좋아요</h2>
+
+{% for article in person.like_articles.all %}
+  <div>{{ article.title }}</div>
+{% endfor %}
+
+<hr>
+
+<a href="{% url 'articles:index' %}">[back]</a>
+{% endblock content %}
+```
+
