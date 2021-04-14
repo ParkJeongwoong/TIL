@@ -1,7 +1,5 @@
 # SWE 1242. 암호코드 스캔
 
-모의 SW 역량 테스트 문제
-
 https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV15JEKKAM8CFAYD
 
 ---
