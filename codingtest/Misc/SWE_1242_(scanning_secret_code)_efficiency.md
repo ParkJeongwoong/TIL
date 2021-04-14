@@ -582,6 +582,104 @@ for tc in range(1, int(input()) + 1):
 
 
 
+### 작은 추가 개선
+
+```python
+secret_key = {'211': 0, '221': 1, '122': 2, '411': 3, '132': 4, '231': 5, '114': 6, '312': 7, '213': 8, '112': 9}
+ 
+ 
+def converter(arr):
+    # 2진법으로 변경
+    data_converted = [0] * (len(arr) * 4)
+    for di in range(len(arr)):
+        d = arr[di]
+        d = '0123456789ABCDEF'.index(d)
+        for i in range(3, -1, -1):
+            if d & (1 << i):
+                data_converted[di * 4 + 3 - i] = 1
+            else:
+                data_converted[di * 4 + 3 - i] = 0
+    return data_converted
+ 
+ 
+def counter(binary_arr):
+    data_converted = []
+    flag = False
+    for i in range(M*4):
+        d = binary_arr[i]
+        if d != flag:
+            data_converted.append(i)
+            flag = not flag
+    data_converted.append(M*4)
+    return data_converted
+ 
+ 
+for tc in range(1, int(input()) + 1):
+    N, M = map(int, input().split())
+    codes = [counter(converter(input().rstrip())) for _ in range(N)]
+    result = 0  # 출력할 정답
+    patterns = {}
+    for th in range(1, N):
+        code = codes[th]
+        # print(code)
+        if len(code) == 1:
+            continue
+        got_code = [0] * 9
+        code_index = 0
+        idx_one = 0
+        # print(code)
+        while idx_one < len(code) - 3:
+            pattern_key = str(code[idx_one])
+            if pattern_key in patterns:
+                if patterns[pattern_key][0] + 1 == th:
+                    for find in range(idx_one + 1, len(code)):
+                        # print('skipped')
+                        if code[find] == patterns[pattern_key][1]:
+                            break
+                    if find < len(code) - 1:
+                        idx_one = find + 1
+                        patterns[pattern_key][0] += 1
+                        continue
+ 
+            for desc in range(code[idx_one + 3] - code[idx_one + 2]):
+                alpha = code[idx_one + 1] - code[idx_one]
+                beta = code[idx_one + 2] - code[idx_one + 1]
+                gamma = code[idx_one + 3] - desc - code[idx_one + 2]
+                size = min(alpha, beta, gamma)
+ 
+                left_for_z = 7 * size - (code[idx_one + 3] - desc - code[idx_one])
+ 
+                if not idx_one or code[idx_one] - code[idx_one - 1] >= left_for_z:  # 7자리수 찾음
+                    key = str(alpha // size) + str(beta // size) + str(gamma // size)
+                    if key in secret_key:  # 암호키에 있는지
+                        if not code_index:
+                            got_code[code_index] = code[idx_one]
+                            code_index += 1
+                        # 이진수 패턴에 대응하는 10진수 숫자를 찾음
+                        got_code[code_index] = secret_key[key]
+                        code_index += 1
+                        if code_index == 9:
+                            if not ((got_code[1] + got_code[3] + got_code[5] + got_code[7]) * 3 + got_code[2] +
+                                    got_code[4] + got_code[6] + got_code[8]) % 10:  # 유효성 검사
+                                # 해독 및 result에 추가
+                                # print(got_code,th)
+                                result += got_code[1] + got_code[2] + got_code[3] + got_code[4] + got_code[5] + \
+                                          got_code[6] + got_code[7] + got_code[8]
+                            patterns[str(got_code[0])] = [th, code[idx_one + 3]]
+                            got_code = [0] * 9
+                            code_index = 0
+                        idx_one += 2
+                        break
+            idx_one += 2
+    print('#{} {}'.format(tc, result))
+```
+
+`946 ms` `74,692 kb` `Python 3`
+
+- 생각해보니 `counter 함수`에서 실제로 counting을 할 필요가 없다 => 그냥 idx임
+
+
+
 
 
 ## 다른 사람 코드
