@@ -472,6 +472,116 @@ for tc in range(1, int(input())+1):
 
 
 
+### 개선된 코드
+
+```python
+secret_key = {'211': 0, '221': 1, '122': 2, '411': 3, '132': 4, '231': 5, '114': 6, '312': 7, '213': 8, '112': 9}
+ 
+ 
+def converter(arr):
+    # 2진법으로 변경
+    data_converted = [0] * (len(arr) * 4)
+    for di in range(len(arr)):
+        d = arr[di]
+        d = '0123456789ABCDEF'.index(d)
+        for i in range(3, -1, -1):
+            if d & (1 << i):
+                data_converted[di * 4 + 3 - i] = 1
+            else:
+                data_converted[di * 4 + 3 - i] = 0
+    return data_converted
+ 
+ 
+def counter(binary_arr):
+    data_converted = [0]
+    flag = False
+    switch = 0
+    for d in binary_arr:
+        if d == flag:
+            data_converted[switch] += 1
+        else:
+            data_converted.append(data_converted[switch] + 1)
+            flag = not flag
+            switch += 1
+    return data_converted
+ 
+ 
+for tc in range(1, int(input()) + 1):
+    N, M = map(int, input().split())
+    codes = [counter(converter(input().rstrip())) for _ in range(N)]
+    result = 0  # 출력할 정답
+    patterns = {}
+    for th in range(1, N):
+        code = codes[th]
+        # print(code)
+        if len(code) == 1:
+            continue
+        got_code = [0] * 9
+        code_index = 0
+        idx_one = 0
+        # print(code)
+        while idx_one < len(code) - 3:
+            pattern_key = str(code[idx_one])
+            if pattern_key in patterns:
+                if patterns[pattern_key][0] + 1 == th:
+                    for find in range(idx_one+1,len(code)):
+                        # print('skipped')
+                        if code[find] == patterns[pattern_key][1]:
+                            break
+                    if find < len(code)-1:
+                        idx_one = find+1
+                        patterns[pattern_key][0] += 1
+                        continue
+ 
+            for desc in range(code[idx_one + 3] - code[idx_one + 2]):
+                alpha = code[idx_one + 1] - code[idx_one]
+                beta = code[idx_one + 2] - code[idx_one + 1]
+                gamma = code[idx_one + 3] - desc - code[idx_one + 2]
+                size = min(alpha, beta, gamma)
+ 
+                left_for_z = 7 * size - (code[idx_one + 3] - desc - code[idx_one])
+ 
+                if not idx_one or code[idx_one] - code[idx_one - 1] >= left_for_z:  # 7자리수 찾음
+                    key = str(alpha // size) + str(beta // size) + str(gamma // size)
+                    if key in secret_key:  # 암호키에 있는지
+                        if not code_index:
+                            got_code[code_index] = code[idx_one]
+                            code_index += 1
+                        # 이진수 패턴에 대응하는 10진수 숫자를 찾음
+                        got_code[code_index] = secret_key[key]
+                        code_index += 1
+                        if code_index == 9:
+                            if not ((got_code[1] + got_code[3] + got_code[5] + got_code[7]) * 3 + got_code[2] +
+                                    got_code[4] + got_code[6] + got_code[8]) % 10:  # 유효성 검사
+                                # 해독 및 result에 추가
+                                # print(got_code,th)
+                                result += got_code[1] + got_code[2] + got_code[3] + got_code[4] + got_code[5] + \
+                                          got_code[6] + got_code[7] + got_code[8]
+                            patterns[str(got_code[0])] = [th, code[idx_one + 3]]
+                            got_code = [0] * 9
+                            code_index = 0
+                        idx_one += 2
+                        break
+            idx_one += 2
+    print('#{} {}'.format(tc, result))
+```
+
+`1,055 ms` `75,616 kb` `Python 3`
+
+- 일단 서버 쪽에서 input값에 리눅스 개행문자가 추가되는 문제 때문에 런타임에러가 발생한 것
+  - rstrip()을 추가함으로써 해결
+
+
+
+- 어짜피 숫자가 반전되는 경계 부분만 중요하므로, `counter 함수`에서 숫자 갯수만 셈
+  - 처음에는 갯수만 셌지만, 해당 숫자의 위치를 알 수 없어서(몇 번째 숫자인지) 누적합을 저장하는 것으로 변경
+- 패턴을 기록하는 방법
+  - 10진수 숫자를 저장한 `got_code` 변수에서 1~8번째까지는 기존의 숫자를 기록, 0번째는 해당 패턴의 시작 위치를 기록
+  - 숫자 8개가 모이고 유효성을 검사한 후, `patterns`에 해당 패턴의 시작위치를 key 값으로 패턴의 row값과 패턴의 마지막 위치를 저장
+  - 이후 key값과 동일한 위치를 만나면, row값을 확인해서 바로 위의 패턴인지 확인 -> 패턴의 마지막 위치로 이동
+
+
+
 
 
 ## 다른 사람 코드
