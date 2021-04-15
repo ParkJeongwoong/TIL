@@ -1,0 +1,79 @@
+# 2021-04-13 CT STUDY
+
+
+
+## 빗물
+
+https://www.acmicpc.net/problem/14719
+
+
+
+### 코드
+
+```python
+# 맵 형성
+H, W = map(int, input().split())
+hs = list(map(int, input().split()))
+
+world = [[0]*W for _ in range(H)]
+for c in range(W):
+    for h in range(H-1,H-1-hs[c],-1):
+        world[h][c] = 1
+
+# 물 뜨기
+pool = 0
+for r in range(H):
+    start = False
+    bucket = 0
+    for c in range(W):
+        if world[r][c]:
+            pool += bucket
+            bucket = 0
+            start = True
+        else:
+            if start:
+                bucket += 1
+
+print(pool)
+```
+
+`104ms` `29564 KB` `Python 3`
+
+
+
+- 맵 형성
+- 한 줄씩 `bucket`에다가 물을 담고, 벽을 만나면 담긴 물을 `pool`에 붓는 방식 사용
+- 시간 복잡도 `O(H*W)`
+
+
+
+### 백준 코드
+
+#### ltk3934님 코드
+
+```python
+h, w = map(int, input().split())
+height = list(map(int, input().split()))
+ret = 0
+l, r = 0, w - 1
+l_max, r_max = height[l], height[r]
+while l < r:
+    l_max, r_max = max(l_max, height[l]), max(r_max, height[r])
+    if l_max <= r_max:
+        ret += l_max - height[l]
+        l += 1
+    else:
+        ret += r_max - height[r]
+        r -= 1
+print(ret)
+```
+
+[ltk3934](https://www.acmicpc.net/user/ltk3934) `68 ms` `28776 KB` `Python 3`
+
+
+
+- 한 쪽 벽에서부터 출발해서 벽보다 높이가 낮으면 그 차이만큼 결과값에 추가, 높이가 더 높으면 벽 갱신
+- 이 때, 왼쪽만 고려하면 오른쪽 벽이 왼쪽 벽보다 낮을 때 문제가 되므로,
+  - while문을 이용하여 오른쪽과 왼쪽을 동시에 검사 => 더 낮은 쪽 벽에서 출발해서 그 차이만큼 결과값에 더하도록 변경
+
+- 시간 복잡도 `O(W)`
