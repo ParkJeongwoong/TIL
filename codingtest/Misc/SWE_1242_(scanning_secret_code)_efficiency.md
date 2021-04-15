@@ -682,6 +682,191 @@ for tc in range(1, int(input()) + 1):
 
 ## 다른 사람 코드
 
+### 주희님 코드
+
+```python
+for tc in range(1, int(input())+1):
+    n, m = map(int, input().split())
+    arr = [input() for _ in range(n)]
+    # 16진수 변환
+    hexadecimal = {'0': '0000', '1': '0001', '2': '0010', '3': '0011','4': '0100', '5': '0101', '6': '0110', '7': '0111','8': '1000', '9': '1001', 'A': '1010', 'B': '1011','C': '1100', 'D': '1101', 'E': '1110', 'F': '1111'}
+    # 주어진 암호 해독
+    decrypt = {"211": "0", "221": "1", "122": "2", "411": "3", "132": "4", "231": "5", "114": "6", "312": "7", "213": "8", "112": "9"}
+    # 쓸데없는 0들 줄 제거 (필요한 16진수만 가져오기) 끝에가 0일 수 있지만 어차피 해독할때 이진수의 끝은 무조건 0이어야 되서 상관없음
+    encrypted = []
+    for i in range(n):
+        section = ''
+        for j in range(m-1, -1, -1):  # 뒤에서 부터 보면서 0만있는줄 제거 & 실제 암호뒤에 있는 0들 제거
+            if arr[i][j] != '0':
+                encrypted.append(arr[i][:j+1])
+                break
+ 
+    encrypted = list(set(encrypted))
+    # print(encrypted)
+ 
+    binary = []
+ 
+    for i in range(len(encrypted)):
+        nums = ''
+        for j in range(len(encrypted[i])):
+            nums += hexadecimal[encrypted[i][j]]
+        for a in range(len(nums)-1,-1,-1):
+            if nums[a] != '0':
+                binary.append(nums[:a+1])
+                break
+    # print(binary)
+    real_num = 0
+    exist = []
+    for i in range(len(binary)):
+        ans = []
+        a, b, c, d = 0,0,0,0
+        for j in range(len(binary[i])-1,-1,-1):
+            if c == 0 and binary[i][j] == '1':
+                d += 1
+            elif b == 0 and d > 0 and binary[i][j] == '0':
+                c += 1
+            elif a == 0 and binary[i][j] == '1':
+                b += 1
+            elif b > 0 and c > 0 and d > 0 and binary[i][j] == '0':
+                lcd = min(b,c,d)
+ 
+                b //= lcd
+                c //= lcd
+                d //= lcd
+ 
+                # print('****')
+                pattern_code = str(b) + str(c) + str(d)
+                # print(pattern_code)
+                ans = [int(decrypt[pattern_code])] + ans
+                # print(ans)
+                # print(b,c,d)
+                a,b,c,d = 0, 0, 0, 0
+    #
+                if len(ans) == 8:
+                    if ((ans[0] + ans[2] + ans[4] + ans[6]) * 3 + ans[1] + ans[3] + ans[5] + ans[7]) % 10 == 0:
+                        if ans not in exist:
+                            real_num += sum(ans)
+                            exist.append(ans)
+                    ans = []
+    print(f'#{tc} {real_num}')
+```
+
+`831 ms` `99,844 kb`
+
+- 전처리를 되게 자세히 수행
+- 간결하고 좋은 코드
+- `encrypted = list(set(encrypted))` 를 통해 중복되는 라인을 제거
+
+
+
+### 은상님 코드
+
+```python
+CODE_MATCH = {
+    '0001101': 0, '0011001': 1,
+    '0010011': 2, '0111101': 3,
+    '0100011': 4, '0110001': 5,
+    '0101111': 6, '0111011': 7,
+    '0110111': 8, '0001011': 9
+}
+ 
+ 
+def to_two(num):
+    """
+    16진수(한자리) -> 2진수(4자리)
+    """
+    if num.isdigit():  # 0~9이면
+        num = int(num)
+    else:
+        num = ord(num) - ord('A') + 10  # A이면 10
+    result = ''
+    while num:
+        result += str(num % 2)
+        num //= 2
+    return result[::-1].zfill(4)
+ 
+ 
+def to_two_all(num_16):
+    """
+    16진수 문자열 -> 2진수 문자열
+    """
+    num_2 = ''  # 2진수 문자열
+    for s in num_16:
+        num_2 += to_two(s)
+    return num_2
+ 
+ 
+def check(code_possible):
+    """
+    56개의 이진수를 입력받아 암호코드가 가능한지 확인
+    """
+    code = []
+    for i in range(0, 56, 7):
+        if CODE_MATCH.get(code_possible[i:i + 7]) is not None:
+            code.append(CODE_MATCH[code_possible[i:i + 7]])
+        else:
+            return 0
+    return code
+ 
+ 
+for tc in range(int(input())):
+    N, M = map(int, input().split())
+    input_arr = []
+    for _ in range(N):
+        temp = input()[:M]
+        temp = [x.strip('0') for x in temp.split('0000000') if x != '']  # 최대 0이 6개 들어갈 수 있기 때문
+        for s in temp:
+            if s not in input_arr:
+                input_arr.append(s)
+ 
+    codes = []  # 최종 암호코드들(유효한지는 모름)
+    for li in input_arr:
+        num_2 = to_two_all(li)  # 16진수 암호코드를 2진수 암호코드로 변환(01DF0000 -> 0000101010100101000000000)
+        num_2 = '0' * 24 + num_2  # 앞쪽 최대 패딩
+        idx = len(num_2) - 1  # 마지막부터 검사
+        while idx > 5:  # 최소 7자리가 필요하므로
+            if num_2[idx] == '1':  # 끝자리가 1이면
+                ratio = 1  # 56의 ratio배
+                while True:
+                    code_possible = ''
+                    for i in range(0, 56 * ratio, ratio):  # 어차피 ratio배 반복되므로 첫째 자리만 사용하면 된다.
+                        code_possible += num_2[idx - i]  # 역순으로 탐색
+                    code_possible = code_possible[::-1]  # 거꾸로 탐색했으니 reverse
+                    code = check(code_possible)
+                    if code:  # code가 유효하면
+                        if code not in codes:
+                            codes.append(code)
+                        break
+                    else:
+                        ratio += 1  # 112, 168,... 개의 자리수 탐색
+                idx -= 56 * ratio  # 훅 건너뜀
+            else:
+                idx -= 1
+ 
+    summation = 0
+    for code in codes:
+        if (3 * sum(code[:-1:2]) + sum(code[1:-1:2]) + code[-1]) % 10 == 0:  # 정상인 암호코드이면
+            summation += sum(code)
+    print('#{} {}'.format(tc + 1, summation))
+```
+
+`701 ms` `63,064 kb`
+
+- `상당히 효율적인 코드`
+- 함수를 통해 구조화를 잘 해서 읽기 편함
+- 주석이 자세해서 굉장히 좋은 코드 (함수에 대한 설명도 있음) + 거기다가 좋은 효율까지!
+
+
+
+- `temp = [x.strip('0') for x in temp.split('0000000') if x != '']` : 계산을 통해 가능한 최대 0의 개수가 6개인 걸 확인 (한 줄이 최대 500자리의 이진수인 것을 이용) => split 해서 코드를 추출
+- **<u>배수를 최소값으로 나눈 형태가 아니라, for문에서 ratio 만큼 건너 뛰면서 check 하는 방식을 사용</u>**
+
+
+
+❗ **암호코드는 56의 배수로 존재한다는 것을 이용!!** ❗ <<== `내가 놓친 조건`
+
+
+
 ### 권순현님 코드
 
 ```python
