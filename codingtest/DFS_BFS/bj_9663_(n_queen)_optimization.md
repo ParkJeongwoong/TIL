@@ -56,6 +56,7 @@ print(count)
 ### 설명
 
 - 좌표만 취한다.
+
   - 다음 row마다 가능한 column을 확인하고 추가
 
 - 백트래킹의 로직에 부합하는 코드인데, 무조건 시간 초과가 난다.
@@ -111,6 +112,8 @@ while queens:
 print(count)
 ```
 
+`21980 ms` `184748 KB` `PyPy3`
+
 
 
 ### 설명
@@ -124,3 +127,34 @@ print(count)
 
 
 (그렇다하더라도 `21980 ms`가 걸린다)
+
+
+
+## 개선 코드
+
+```python
+def nqueen(row, column, rd, ru):
+    global count
+    if row == N:
+        count += 1
+    
+    for i in range(N):
+        if not column[i] and not rd[N-1-i+row] and not ru[i+row]:
+            column[i], rd[N-1-i+row], ru[i+row] = 1,1,1
+            nqueen(row+1, column, rd, ru)
+            column[i], rd[N-1-i+row], ru[i+row] = 0,0,0
+
+N = int(input())
+
+count = 0
+
+nqueen(0, [0]*N, [0]*(2*N-1), [0]*(2*N-1))
+
+print(0 if N==0 else count)
+```
+
+`4696 ms` `132732 KB` `PyPy3`
+
+
+
+- 재귀를 사용해서 위의 코드를 더 효율적으로 변환
