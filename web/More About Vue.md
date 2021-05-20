@@ -64,4 +64,5 @@ Vue 에서 `$`는 `전역 객체 속성`이다
     - `method -> data, props 접근` 시 this 사용
     - `$ 접근` 시 this 사용
   - sotre/**index.js**  안에서,
-    - `this 사용 X`
+    - `actions -> state 접근` 시 this 사용
+    - `mutations -> state 접근` 시 `this 사용 X` / state를 인자로 받는다
