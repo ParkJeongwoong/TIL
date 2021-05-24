@@ -163,12 +163,12 @@ from rest_framework import status
 def artist_list_or_create(request):
     if request.method == 'GET':
         artists = Artist.objects.all()
-        serializer = ArtistListSerializer(data=request.data)
+        serializer = ArtistSerializer(artists, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
         # serializer = ArtistListSerializer(artists, many=True) # 이 부분은 이렇게하면 안 된다. 지금은 CharField만 있어서 괜찮지만, Field가 여러 개가 오면 문제가 생긴다.
-        serializer = ArtistSerializer(artists, many=True) # 이렇게 List용과 분리해서 단일 CRUD 통합 Serializer가 있어야 한다.
+        serializer = ArtistListSerializer(data=request.data) # 이렇게 List용과 분리해서 단일 CRUD 통합 Serializer가 있어야 한다.
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status.HTTP_201_CREATED)
@@ -208,22 +208,7 @@ def music_list(request):
 ### serializers.py
 
 ```python
-class MusicSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(max_length=20)
-    
-    class Meta:
-        model = Music
-        fields = ['id', 'title', 'artist', 'lyric',]
-        read_only_fields = ['artist',]
-
-
-class ArtistSerializer(serializers.ModelSerializer):
-    musics = MusicSerializer(many=True, read_only=True) # id 값이 아니라 곡 정보가 나오도록
-    music_count = serializers.IntegerField(source='musics.count')
-    
-    class Meta:
-        model = Artist
-        fields = ['id', 'name', 'musics', 'music_count',]
+class MusicSerializer(serializers.ModelSerializer):    title = serializers.CharField(max_length=20)        class Meta:        model = Music        fields = ['id', 'title', 'artist', 'lyric',]        read_only_fields = ['artist',]class ArtistSerializer(serializers.ModelSerializer):    musics = MusicSerializer(many=True, read_only=True) # id 값이 아니라 곡 정보가 나오도록    music_count = serializers.IntegerField(source='musics.count')        class Meta:        model = Artist        fields = ['id', 'name', 'musics', 'music_count',]
 ```
 
 
@@ -231,17 +216,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 ### urls.py
 
 ```python
-from django.urls import path
-from . import views
-
-urlpatterns = [
-    path('artists/', views.artist_list_or_create),
-    path('musics/', views.music_list),
-    
-    path('artists/<int:artist_pk>/', views.artist_detail),
-    path('artists/<int:artist_pk>/music/', views.music_create),
-    path('musics/<int:music_pk>/', views.music_detail_or_update_or_delete),
-]
+from django.urls import pathfrom . import viewsurlpatterns = [    path('artists/', views.artist_list_or_create),    path('musics/', views.music_list),        path('artists/<int:artist_pk>/', views.artist_detail),    path('artists/<int:artist_pk>/music/', views.music_create),    path('musics/<int:music_pk>/', views.music_detail_or_update_or_delete),]
 ```
 
 
@@ -249,50 +224,7 @@ urlpatterns = [
 ### views.py
 
 ```python
-from django.shortcuts import get_object_or_404
-from .serializers import ArtistSerializer, MusicSerializer
-
-@api_view(['GET'])
-def artist_detail(request, artist_pk):
-    artist = get_object_or_404(Artist, pk=artist_pk)
-    serializer = ArtistSerializer(artist) # instance = artist
-    return Response(serializer.data)
-
-
-@api_view(['POST'])
-def music_create(request, artist_pk):
-    artist = get_object_or_404(Artist, pk=artist_pk)
-    serializer = MusicSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        serializer.save(artist=artist)
-        return Response(serializer.data)
-    return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
-    
-
-
-@api_view(['GET','PUT','DELETE'])
-def music_detail_or_update_or_delete(request, music_pk):
-    music = get_object_or_404(Music, pk=music_pk)
-    
-    if request.method == 'GET':
-        serializer = MusicSerializer(instance=music)
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
-        serializer = MusicSerializer(data=request.data, instance=music) # serialized된 data(request.data)를 instance(music)에 넣는다는 뜻
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(artist=music.artist)
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
-    
-    elif request.method == 'DELETE':
-        music.delete()
-        data = {
-            "success": True,
-            "message": f'{music_pk}번째 노래의 데이터가 삭제되었습니다.',
-        }
-        return Response(data, status.HTTP_204_NO_CONTENT)
+from django.shortcuts import get_object_or_404from .serializers import ArtistSerializer, MusicSerializer@api_view(['GET'])def artist_detail(request, artist_pk):    artist = get_object_or_404(Artist, pk=artist_pk)    serializer = ArtistSerializer(artist) # instance = artist    return Response(serializer.data)@api_view(['POST'])def music_create(request, artist_pk):    artist = get_object_or_404(Artist, pk=artist_pk)    serializer = MusicSerializer(data=request.data)    if serializer.is_valid(raise_exception=True):        serializer.save(artist=artist)        return Response(serializer.data)    return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)    @api_view(['GET','PUT','DELETE'])def music_detail_or_update_or_delete(request, music_pk):    music = get_object_or_404(Music, pk=music_pk)        if request.method == 'GET':        serializer = MusicSerializer(instance=music)        return Response(serializer.data)    elif request.method == 'PUT':        serializer = MusicSerializer(data=request.data, instance=music) # serialized된 data(request.data)를 instance(music)에 넣는다는 뜻        if serializer.is_valid(raise_exception=True):            serializer.save(artist=music.artist)            return Response(serializer.data)        else:            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)        elif request.method == 'DELETE':        music.delete()        data = {            "success": True,            "message": f'{music_pk}번째 노래의 데이터가 삭제되었습니다.',        }        return Response(data, status.HTTP_204_NO_CONTENT)
 ```
 
 
