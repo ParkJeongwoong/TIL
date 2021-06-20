@@ -113,7 +113,87 @@ const useBeforeLeave = (onBefore) => {
   useEffect(() => {
     document.addEventListener("mouseleave", handle)
     return () => document.removeEventListener("mouseleave", handle)
+  })
+}
+
+// useFadeIn
+const useFadeIn = (duration = 1, delay = 0) => {
+  const element = useRef()
+  useEffect(() => {
+    if (element.current) {
+      const { current } = element
+      current.style.transition = `opacity ${duration}s ease-in-out ${delay}s`
+      current.style.opacity = 1
+    }
+  }, [duration, delay])
+  return {ref: element, style: { opacity: 0 } }
+}
+
+// useNetwork
+const useNetwork = onChange => {
+  const [status, setStatus] = useState(navigator.onLine)
+  const handleChange = () => {
+    if (typeof onChange === "function") {
+      onChange(navigator.onLine)
+    }
+    setStatus(navigator.onLine)
+  }
+  useEffect(() => {
+    window.addEventListener("online", handleChange)
+    window.addEventListener("offline", handleChange)
+    return () => {
+      window.addEventListener("online", handleChange)
+      window.addEventListener("offline", handleChange)
+    }
+  })
+  return status
+}
+
+// useScroll
+const useScroll = () => {
+  const [scroll, setScroll] = useState({
+    x: 0,
+    y: 0
+  })
+  const onScroll = () => {
+    setScroll({y: window.scrollY, x: window.scrollX})
+  }
+  useEffect(() => {
+    window.addEventListener("scroll", onScroll)
+    return () => window.removeEventListener("scroll", onScroll)
   }, [])
+  return scroll
+}
+
+// useFullscreen
+const useFullscreen = (callback) => {
+  const fullScrEl = useRef()
+  const triggerFull = () => {
+    if(fullScrEl.current){
+      if (fullScrEl.current.requestFullscreen) {
+        fullScrEl.current.requestFullscreen()
+      } else if (fullScrEl.current.mozRequestFullscreen) {
+        fullScrEl.current.mozRequestFullscreen()
+      } else if (fullScrEl.current.webkitRequestFullscreen) {
+        fullScrEl.current.webkitRequestFullscreen()
+      } else if (fullScrEl.current.msRequestFullscreen) {
+        fullScrEl.current.msRequestFullscreen()
+      }
+      if (callback && typeof callback === "function") {
+        callback(true)
+      }
+    }
+  }
+  const exitFull = () => {
+    const checkFullScreen = document.fullscreenElement
+    if (checkFullScreen !== null) {
+    document.exitFullscreen()
+    }
+    if(callback && typeof callback === "function") {
+      callback(false)
+    }
+  }
+  return { fullScrEl, triggerFull, exitFull }
 }
 
 
@@ -154,6 +234,22 @@ const App = () => {
   // useBeforeLeave
   const begForLife = () => console.log("Pls dont Leave")
   useBeforeLeave(begForLife)
+  
+  // useFadeIn
+  const fadeInH1 = useFadeIn(1, 2)
+  const fadeInP = useFadeIn(2, 4)
+
+  // useNetwork
+  const onLine = useNetwork()
+
+  // useScroll
+  const {y} = useScroll()
+
+  // useFullscreen
+  const onFullS = (isFull) => {
+    console.log(isFull ? "We are full" : "We are small")
+  }
+  const {fullScrEl, triggerFull, exitFull} = useFullscreen(onFullS)
 
     
   return (
@@ -199,6 +295,28 @@ const App = () => {
 
       {/* useBeforeLeave */}
       <h1>BeforeYouLeave</h1>
+
+      {/* useFadeIn */}
+      <h1 {...fadeInH1}>Fade In </h1>
+      <p {...fadeInP}>lorem ipsum lalalalal</p>
+
+      {/* useNetwork */}
+      <h1>{onLine ? "Online" : "Offline"}</h1>
+
+      {/* useScroll */}
+      <div style={{height: "200vh"}}>
+        <h1 style={{position: "relative", color: y > 400 ? "red" : "blue"}}>Scroll</h1>
+      </div>
+
+      {/* useFullscreen */}
+      <div ref={fullScrEl}>
+        <img 
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Baleine_%C3%A0_bosse_et_son_baleineau_2.jpg/1200px-Baleine_%C3%A0_bosse_et_son_baleineau_2.jpg" 
+          alt="whale"
+        />
+        <button onClick={exitFull}>Exit fullscreen</button>
+      </div>
+      <button onClick={triggerFull}>Make fullscreen</button>
     </div>
   )
 }
