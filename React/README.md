@@ -1019,7 +1019,117 @@ export default App
 
 ## useNotification
 
+```react
+import './App.css'
+import React, { useState, useEffect, useRef } from "react"
+
+const useNotification = (title, options) => {
+  if(!("Notification" in window)) {
+    return
+  }
+  const fireNotif = () => {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          new Notification(title, options)
+        } else {
+          return
+        }
+      })
+    } else {
+      new Notification(title, options)
+    }
+  }
+  return fireNotif
+}
+
+
+const App = () => {
+  const triggerNoitf = useNotification("Can I get your bread?", {body: "I love bread, don't you?"})
+
+    
+  return (
+    <div className="App">
+      <div>
+        <button onClick={triggerNoitf}>Notification!</button>
+      </div>
+    </div>
+  )
+}
+
+export default App
+```
+
 
 
 ## useAxios
+
+```react
+import './App.css'
+import React, { useState, useEffect, useRef } from "react"
+import useAxios from "./useAxios"
+
+const App = () => {
+  const { loading, data, error, refetch } = useAxios({
+    url:
+    "https://yts.mx/api/v2/list_movies.json"
+    })
+  // console.log(`Loading: ${loading}\nError: ${error}]nData: ${JSON.stringify(data)}`)
+
+    
+  return (
+    <div className="App">
+      <button onClick={refetch}>Refetch</button>
+      <h2>{loading && "Loading"}</h2>
+      <h2>{data && data.status}</h2>
+    </div>
+  )
+}
+
+export default App
+```
+
+```javascript
+import defaultAxios from "axios"
+import { useEffect, useState } from "react"
+
+const useAxios = (opts, axiosInstance = defaultAxios) => {
+  const [state, setState] = useState({
+    loading: true,
+    error: null,
+    data: null
+  })
+
+  const [trigger, setTrigger] = useState(0)
+  const refetch = () => {
+    setState({
+      ...state,
+      loading: true
+    })
+    setTrigger(Date.now())
+  }
+
+  useEffect(() => {
+    if (!opts.url) {
+      return
+    }
+    axiosInstance(opts).then(data => {
+      setState({
+        ...state,
+        loading: false,
+        data
+      })
+    }).catch(error => {
+      setState({...state, loading:false, error})
+    })
+  }, [trigger])
+  
+  if (!opts.url) {
+    return
+  }
+  return { ...state, refetch }
+}
+
+export default useAxios
+```
 

@@ -1,5 +1,6 @@
 import './App.css'
 import React, { useState, useEffect, useRef } from "react"
+import useAxios from "./useAxios"
 
 // useInput
 const useInput = (initialValue, validator) => {
@@ -196,6 +197,27 @@ const useFullscreen = (callback) => {
   return { fullScrEl, triggerFull, exitFull }
 }
 
+// useNotification
+const useNotification = (title, options) => {
+  if(!("Notification" in window)) {
+    return
+  }
+  const fireNotif = () => {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          new Notification(title, options)
+        } else {
+          return
+        }
+      })
+    } else {
+      new Notification(title, options)
+    }
+  }
+  return fireNotif
+}
+
 
 const App = () => {
   // useState
@@ -250,6 +272,16 @@ const App = () => {
     console.log(isFull ? "We are full" : "We are small")
   }
   const {fullScrEl, triggerFull, exitFull} = useFullscreen(onFullS)
+
+  // useNotification
+  const triggerNoitf = useNotification("Can I get your bread?", {body: "I love bread, don't you?"})
+
+  // useAxios
+  const { loading, data, error, refetch } = useAxios({
+    url:
+    "https://yts.mx/api/v2/list_movies.json"
+    })
+  // console.log(`Loading: ${loading}\nError: ${error}]nData: ${JSON.stringify(data)}`)
 
     
   return (
@@ -317,6 +349,16 @@ const App = () => {
         <button onClick={exitFull}>Exit fullscreen</button>
       </div>
       <button onClick={triggerFull}>Make fullscreen</button>
+
+      {/* useNotification */}
+      <div>
+        <button onClick={triggerNoitf}>Notification!</button>
+      </div>
+
+      {/* useAxios */}
+      <button onClick={refetch}>Refetch</button>
+      <h2>{loading && "Loading"}</h2>
+      <h2>{data && data.status}</h2>
     </div>
   )
 }
