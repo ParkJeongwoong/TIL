@@ -154,3 +154,258 @@ public class OKJavaGoHome {
 ClassName instance1 = new ClassName();
 ```
 
+
+
+## 배열
+
+선언 : **`자료형 [] 변수명 = new 자료형[크기];`**
+
+저장 : `변수명[인덱스] = 값`
+
+
+
+## 반복문 / 조건문
+
+> 자바스크립트와 동일
+
+
+
+## 메소드
+
+> 메소드는 서로 **연관된 코드를 grouping**해서 이름을 붙인 상자
+
+- 메소드 사용 이전
+
+```java
+public class AccountingApp {
+
+	public static void main(String[] args) {
+		
+		double valueOfSupply = Double.parseDouble(args[0]);
+		double vatRate = 0.1;
+		double expenseRate = 0.3;
+		double vat = valueOfSupply*vatRate;
+		double total = valueOfSupply + vat;
+		double expense = valueOfSupply*expenseRate;
+		double income = valueOfSupply - expense;
+		
+		double dividened1 = income * 0.5;
+		double dividened2 = income * 0.3;
+		double dividened3 = income * 0.2;
+		
+		System.out.println("Value of supply : "+valueOfSupply);
+		System.out.println("VAT : "+ vat );
+		System.out.println("Total : "+ total );
+		System.out.println("Expense : "+ expense );
+		System.out.println("Income : "+ income );
+		System.out.println("Dividend : "+ dividened1 );
+		System.out.println("Dividend : "+ dividened2 );
+		System.out.println("Dividend : "+ dividened3 );
+
+	}
+
+}
+```
+
+- 메소드 사용 이후
+
+```java
+public class AccountingMethodApp {
+	public static double valueOfSupply;
+	public static double vatRate;
+	public static double expenseRate;
+	
+	public static void main(String[] args) {
+		valueOfSupply = Double.parseDouble(args[0]);
+		vatRate = 0.1;
+		expenseRate = 0.3;
+		print();
+	}
+
+	public static void print() {
+		System.out.println("Value of supply : "+valueOfSupply);
+		System.out.println("VAT : "+ getVAT() );
+		System.out.println("Total : "+ getTotal() );
+		System.out.println("Expense : "+ getExpense() );
+		System.out.println("Income : "+ getIncome() );
+		System.out.println("Dividend : "+ getDividened1() );
+		System.out.println("Dividend : "+ getDividened2() );
+		System.out.println("Dividend : "+ getDividened3() );
+	}
+
+	public static double getDividened1() {
+		return getIncome() * 0.5;
+	}
+
+	public static double getDividened2() {
+		return getIncome() * 0.3;
+	}
+
+	public static double getDividened3() {
+		return getIncome() * 0.2;
+	}
+
+	public static double getIncome() {
+		return valueOfSupply - getExpense();
+	}
+
+	public static double getExpense() {
+		return valueOfSupply*expenseRate;
+	}
+
+	public static double getTotal() {
+		return valueOfSupply + getVAT();
+	}
+
+	public static double getVAT() {
+		return valueOfSupply*vatRate;
+	}
+}
+```
+
+
+
+## 클래스
+
+> 클래스는 서로 **연관된 변수와 메소드를 grouping**하고 이름을 붙인 상자
+
+- 클래스 사용 이후
+
+```java
+class Accounting {
+	public static double valueOfSupply;
+	public static double vatRate;
+	public static double expenseRate;	
+
+	public static void print() {
+		System.out.println("Value of supply : "+valueOfSupply);
+		System.out.println("VAT : "+ getVAT() );
+		System.out.println("Total : "+ getTotal() );
+		System.out.println("Expense : "+ getExpense() );
+		System.out.println("Income : "+ getIncome() );
+		System.out.println("Dividend : "+ getDividened1() );
+		System.out.println("Dividend : "+ getDividened2() );
+		System.out.println("Dividend : "+ getDividened3() );
+	}
+
+	public static double getDividened1() {
+		return getIncome() * 0.5;
+	}
+
+	public static double getDividened2() {
+		return getIncome() * 0.3;
+	}
+
+	public static double getDividened3() {
+		return getIncome() * 0.2;
+	}
+
+	public static double getIncome() {
+		return valueOfSupply - getExpense();
+	}
+
+	public static double getExpense() {
+		return valueOfSupply*expenseRate;
+	}
+
+	public static double getTotal() {
+		return valueOfSupply + getVAT();
+	}
+
+	public static double getVAT() {
+		return valueOfSupply*vatRate;
+	}
+}
+
+
+public class AccountingClassApp {
+	
+	public static void main(String[] args) {
+		Accounting.valueOfSupply = Double.parseDouble(args[0]);
+		Accounting.vatRate = 0.1;
+		Accounting.expenseRate = 0.3;
+		Accounting.print();
+	}
+    
+}
+```
+
+
+
+## 인스턴스
+
+```java
+class Accounting {
+	public double valueOfSupply;
+	public double vatRate;
+	public double expenseRate;	
+
+	public void print() {
+		System.out.println("Value of supply : "+valueOfSupply);
+		System.out.println("VAT : "+ getVAT() );
+		System.out.println("Total : "+ getTotal() );
+		System.out.println("Expense : "+ getExpense() );
+		System.out.println("Income : "+ getIncome() );
+		System.out.println("Dividend : "+ getDividened1() );
+		System.out.println("Dividend : "+ getDividened2() );
+		System.out.println("Dividend : "+ getDividened3() );
+	}
+
+	public double getDividened1() {
+		return getIncome() * 0.5;
+	}
+
+	public double getDividened2() {
+		return getIncome() * 0.3;
+	}
+
+	public double getDividened3() {
+		return getIncome() * 0.2;
+	}
+
+	public double getIncome() {
+		return valueOfSupply - getExpense();
+	}
+
+	public double getExpense() {
+		return valueOfSupply*expenseRate;
+	}
+
+	public double getTotal() {
+		return valueOfSupply + getVAT();
+	}
+
+	public double getVAT() {
+		return valueOfSupply*vatRate;
+	}
+}
+
+
+public class AccountingClassApp {
+	
+	public static void main(String[] args) {
+//		Accounting.valueOfSupply = Double.parseDouble(args[0]);
+//		Accounting.vatRate = 0.1;
+//		Accounting.expenseRate = 0.3;
+//		Accounting.print();
+		
+		// 인스턴스 생성
+		Accounting a1 = new Accounting();
+		a1.valueOfSupply = 10000.0;
+		a1.vatRate = 0.1;
+		a1.expenseRate = 0.3;
+		a1.print();
+		
+		Accounting a2 = new Accounting();
+		a2.valueOfSupply = 20000.0;
+		a2.vatRate = 0.1;
+		a2.expenseRate = 0.3;
+		a2.print();
+	}
+	
+}
+```
+
+- `new`를 통해 인스턴스를 생성해서 사용 가능
+- 이 때, **인스턴스가 사용하는 메서드와 변수를 사용하려면 `static`을 제거해야 한다**
+

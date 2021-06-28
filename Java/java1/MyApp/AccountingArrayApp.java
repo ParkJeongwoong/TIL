@@ -1,5 +1,5 @@
 
-public class AccountingApp {
+public class AccountingArrayApp {
 
 	public static void main(String[] args) {
 		
@@ -11,9 +11,14 @@ public class AccountingApp {
 		double expense = valueOfSupply*expenseRate;
 		double income = valueOfSupply - expense;
 		
-		double dividened1 = income * 0.5;
-		double dividened2 = income * 0.3;
-		double dividened3 = income * 0.2;
+		double [] dividendRates = new double[3];
+		dividendRates[0] = 0.5;
+		dividendRates[1] = 0.3;
+		dividendRates[2] = 0.2;
+		
+		double dividened1 = income * dividendRates[0];
+		double dividened2 = income * dividendRates[1];
+		double dividened3 = income * dividendRates[2];
 		
 		System.out.println("Value of supply : "+valueOfSupply);
 		System.out.println("VAT : "+ vat );
