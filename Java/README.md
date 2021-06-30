@@ -409,3 +409,10 @@ public class AccountingClassApp {
 - `new`를 통해 인스턴스를 생성해서 사용 가능
 - 이 때, **인스턴스가 사용하는 메서드와 변수를 사용하려면 `static`을 제거해야 한다**
 
+
+
+## 인터페이스
+
+> https://limkydev.tistory.com/197
+
+자식들에게 틀을 제공
