@@ -700,3 +700,415 @@ class GenericContainer<T> {
   - `hasNext()` : 이번에 element가 있는지 T/F로 반환
   - `next()` : 이번의 element를 반환
 
+
+
+## Thread
+
+### 생성
+
+Thread를 만드는 방법
+
+1. **Runnable** 인터페이스 implement => 추상 메서드` run` 구현 (여기에 Job을 넣음) => 이렇게 만든 클래스를 객체로 만들어서 **Thread** 객체에 넣음 => `start()`
+
+`Runnable 인터페이스를 implement`
+
+`run() 구현`
+
+`main 클래스에서 thread 객체를 만들고 위의 클래스를 넣어서 start()`
+
+```java
+package study;
+
+public class thread_runnable implements Runnable {
+	int num;
+	
+	public thread_runnable(int num) {
+		this.num = num;
+	}
+	
+	@Override
+	public void run() {
+		System.out.println("#" + num + "is Started");
+		for( int i=0; i<1000;i++) {
+			int j = i*100;
+		}
+		System.out.println(num);
+	}
+}
+```
+
+```java
+package study;
+
+public class thread_test {
+
+	public static void main(String[] args) {
+		for(int t=0; t<1000; t++) {
+			
+			thread_runnable th = new thread_runnable(t);
+			Thread thread = new Thread(th);
+			thread.start();
+		
+		}
+	}
+}
+```
+
+2. **Thread** Class extends / Thread class 상속 => run method를 overriding
+
+`Thread 클래스를 extends`
+
+`run() overriding`
+
+`main 클래스에서 위의 클래스 객체를 만들고 start()`
+
+```java
+package study;
+
+public class thread_with_Cthread extends Thread{
+	int num;
+	
+	public thread_with_Cthread(int num) {
+		this.num = num;
+	}
+	
+	@Override
+	public void run() {
+		System.out.println("#" + num + "is Started");
+		for( int i=0; i<1000;i++) {
+			int j = i*100;
+		}
+		System.out.println(num);
+	}
+}
+```
+
+```java
+package study;
+
+public class thread_test {
+
+	public static void main(String[] args) {
+		for(int t=0; t<1000; t++) {
+			
+			thread_with_Cthread thread = new thread_with_Cthread(t);
+			thread.start();
+		
+		}
+	}
+
+}
+```
+
+
+
+### sleep()
+
+- static method, `Thread.sleep()`
+- mili-second 단위로 parameter 전달
+- main도 Thread
+- try-catch 구문으로 작성
+
+```java
+package study;
+
+public class thread_with_Cthread extends Thread{
+	int num;
+	
+	public thread_with_Cthread(int num) {
+		this.num = num;
+	}
+	
+	@Override
+	public void run() {
+		for( int i=0; i<1000;i++) {
+			// 짝수만 sleep
+            if( i == 500 && num % 2 == 0 ) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+		}
+		System.out.println(num);
+	}
+}
+```
+
+
+
+### join()
+
+- 특정 Thread가 완료될 때까지 멈춰있다가 해당 Thread가 종료되면 Job을 다시 수행 (대기)
+
+- Thread 간에 순서를 부여
+
+- a라는 Thread에 join하고 싶으면 `a.join()` 형태로 사용
+
+```java
+package study;
+
+public class thread_join extends Thread{
+	int num;
+	
+	public thread_join(int num) {
+		this.num = num;
+	}
+	
+	@Override
+	public void run() {
+
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println(num);
+	}
+}
+```
+
+```java
+package study;
+
+public class thread_join_main {
+
+		public static void main(String[] args) {
+			
+			System.out.println("Main Thread Start!!");
+			
+			thread_join thread = new thread_join(2021);
+			thread.start();
+			
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			System.out.println("Main Thread End!!");
+		}
+}
+```
+
+- join의 존재로 인해서 thread_join Thread가 2초 뒤 완료된 후 Main Thread End라는 문구가 출력된다.
+
+  (join이 없으면 2초를 기다리면서 Main Thread End 문구가 먼저 출력되고 숫자가 출력됨)
+
+
+
+### Interrupt
+
+- `객체.interrupt()`로 사용
+
+```java
+package study;
+
+public class thread_interrupt extends Thread {
+	int num;
+	
+	public thread_interrupt(int num) {
+		this.num = num;
+	}
+	
+	@Override
+	public void run() {
+
+		try {
+			System.out.println("thread try start");
+			Thread.sleep(5000);
+			System.out.println("thread try end");
+		} catch (InterruptedException e) {
+			System.out.println("thread interrupted raised");
+		}
+		
+		System.out.println(num);
+	}	
+}
+```
+
+```java
+package study;
+
+public class thread_interrupt_main {
+
+	public static void main(String[] args) {
+		thread_interrupt t = new thread_interrupt(2021);
+		t.start();
+		t.interrupt();
+		
+		try {
+			Thread.sleep(3000);
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Main Thread End!!");
+	}
+}
+```
+
+- 결과
+
+  - No Interrupt
+
+    ```
+    thread try start
+    (3초)
+    Main Thread End!!
+    (2초; 총 5초)
+    thread try end
+    2021
+    ```
+
+    
+
+  - With Interrupt
+
+    ```
+    thread try start
+    thread interrupted raised
+    2021
+    (3초)
+    Main Thread End!!
+    ```
+
+
+
+### yield()
+
+- 당장 수행이 필요 없는 Thread에 호출 => 수행을 양보
+- Wait이 아니라 Runnable 상태로 돌아가는 것이기 때문에 언제든 다시 수행될 수 있다
+
+
+
+### Thread 동기화 (Synchronized)
+
+중요한 Job을 한 개의 Job으로 처리하는 것 (**<u>여러 Thread의 동시 접근 차단</u>**)
+
+```java
+sync_cell cell = new sync_cell();
+			
+for( int i=0;i<10;i++) {
+    sync_thread_medicine t = new sync_thread_medicine(cell);
+    t.start();
+}
+```
+
+위의 코드는 동일한 자원 cell에 대해 10개의 Thread가 접근 => 한 thread가 cell 자원을 읽는 도중 다른 thread가 cell 자원 값을 변경할 수 있음
+
+
+
+- cell
+
+```java
+package study;
+
+public class sync_cell {
+	public int power = 300;
+}
+```
+
+- main
+
+```java
+package study;
+
+public class sync_thread_medicine_main {
+
+	public static void main(String[] args) {
+		sync_cell cell = new sync_cell();
+			
+			for( int i=0;i<10;i++) {
+				sync_thread_medicine t = new sync_thread_medicine(cell);
+				t.start();
+			}
+		
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+}
+```
+
+[비동기화 thread]
+
+```java
+package study;
+
+public class sync_thread_medicine extends Thread{
+	sync_cell cell;
+	
+	public sync_thread_medicine(sync_cell cell) {
+		this.cell = cell;
+	}
+	
+	@Override
+	public void run() {
+		
+		if( cell.power < 500 ) {
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			cell.power = cell.power + 100;
+		}
+		
+		System.out.println("Medicine Thread : " + cell.power);
+	}
+}
+```
+
+
+
+`방법1`
+
+중요 Job을 수행하는 Method 자체를 synchronized 처리
+
+`방법2`
+
+Method 내 특정 블럭을 synchronized 처리
+
+[Synchronized 처리 thread]
+
+```java
+package study;
+
+public class sync_thread_medicine extends Thread{
+	sync_cell cell;
+	
+	public sync_thread_medicine(sync_cell cell) {
+		this.cell = cell;
+	}
+	
+	@Override
+	public void run() {
+		
+		synchronized (cell) {
+			
+			if( cell.power < 500 ) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				cell.power = cell.power + 100;
+			}
+			
+			System.out.println("Medicine Thread : " + cell.power);
+		}
+	}
+}
+```
+
+
+
+
+
