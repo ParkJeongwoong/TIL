@@ -115,7 +115,7 @@ pom.xml										 : 프로젝트에 필요한 라이브러리를 내려받기 �
 
 ### DispatcherServlet
 
-![image-20211114172735618](14_스프링 MVC 웹서비스.assets/image-20211114172735618.png)
+!./[image-20211114172735618](14_스프링 MVC 웹서비스.assets/image-20211114172735618.png)
 
 - HandlerMapping 객체 : **Controller** 탐색
 - HandlerAdpater 객체 : **Method** 탐색 / ModelAndView 객체를 Dispatcher 객체에 반환
