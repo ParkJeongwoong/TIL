@@ -58,15 +58,33 @@ MemberService service;
 
 
 
-### 방법3 : `어노테이션`을 이용한 객체 생성 및 의존성 자동 주입
+### 방법3 : `어노테이션`을 이용한 객체 생성 및 의존성 자동 주입 * 가장 많이 사용
 
 ```java
 @Repository("memService")
-public class MemberService implements IMemberService {}
+public class MemberService implements IMemberService {...}
 
 @Resource(name="memService")
 MemberService service;
 ```
+
+"memService"라는 이름을 지정하면서 Repository를 설정하는 방법인데, 많이 사용되지는 않는다.
+
+
+
+**다른 어노테이션**
+
+```java
+@Service // Service 객체라는 것을 명시
+public class MemberService implements IMemberService {...}
+
+@Autowired
+MemberService service;
+```
+
+@Controller를 붙이듯이 **@Service**를 통해서 Service 객체로 지정 가능
+
+(`@Service`, `@Repository`, `@Component` 모두 사용 가능)
 
 
 
@@ -76,7 +94,7 @@ MemberService service;
 
 ```java
 @Repository
-public class MemberDao implements IMemberDao {}
+public class MemberDao implements IMemberDao {...}
 
 @Autowired
 MemberDao service;
