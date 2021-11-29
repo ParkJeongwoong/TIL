@@ -148,6 +148,107 @@ public String memLogin(Member member) {
 
 
 
+## @ModelAttribute
+
+`@ModelAttribute`를 이용해 **커맨드 객체의 이름**을 변경, **View**에서 <u>커맨드 객체를 참조할 때</u> 변경된 이름을 사용 가능
+
+![image-20211129212422941](18_Controller 객체 구현.assets/image-20211129212422941.png)
+
+
+
+## 데이터 타입
+
+> 커맨드 객체의 데이터 타입
+
+```html
+<input type="text" name="memId">
+<input type="password" name="memPw">
+<input type="text" name="memAge" size="4" value="0">
+```
+
+이런 input data를 받았을 때
+
+```java
+private String memId;
+private String memPw;
+private int memAge;
+```
+
+이렇게 원하는 데이터 타입으로 저장 가능
+
+
+
+### 여러 input을 하나의 커맨드 객체에 저장할 때
+
+```html
+PHONE1 : 
+<input type="text" name="memPhones[0].memPhone1" size="5">
+<input type="text" name="memPhones[0].memPhone2" size="5">
+<input type="text" name="memPhones[0].memPhone3" size="5">
+
+PHONE2 : 
+<input type="text" name="memPhones[1].memPhone1" size="5">
+<input type="text" name="memPhones[1].memPhone2" size="5">
+<input type="text" name="memPhones[1].memPhone3" size="5">
+```
+
+이런 여러 input 데이터를 받고
+
+```java
+private List<MemPhone> memPhones;
+```
+
+이렇게 하나의 클래스에 저장 가능
+
+
+
+- **memPhone1** + **memPhone2** + **memPhone3** => `memPhone` 클래스
+- **memPhone** + **memPhone** => `List<memPhone> memPhones` ; memPhone이 모인 List, memPhones
+
+
+
+## Model & ModelAndView
+
+`Model & ModelAndView` : <u>View에 데이터를 전달</u>하기 위한 **Controller에서 사용되는 객체**
+
+- `Model` : **데이터만** 전달
+- `ModelAndView` : **데이터와 뷰의 이름**을 함께 전달
+
+
+
+- **memModifyOk.jsp**라는 View에서 **${memBef.memId}**, **${memAft.memId}**라는 이름으로 데이터를 사용하기 위한 `Model`과 `ModelAndView` 코드
+
+```java
+// Model
+@RequestMapping(value = "/memModify", method = RequestMethod.POST)
+public String memModify(Model model, Member member) {
+    Member[] members = service.memberModify(member);
+    
+    model.addAttribute("memBef", members[0]);
+    model.addAttribute("memAft", members[1]);
+    
+    return "memModifyOk";
+}
+```
+
+(model)
+
+```java
+// ModelAndView
+@RequestMapping(value = "/memModify", method = RequestMethod.POST)
+public ModelAndView memModify(Member member) {
+	Member[] members = service.memberModify(member);
+    
+    ModelAndView mav = new ModelAndView();
+    mav.addObject("memBef", members[0]);
+    mav.addObject("memAft", members[1]);
+    
+    mav.setViewName("memModifyOk");
+    
+    return mav;
+}
+```
+
 
 
 ## 출처
