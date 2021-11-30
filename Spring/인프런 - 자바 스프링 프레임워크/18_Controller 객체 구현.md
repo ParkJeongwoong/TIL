@@ -12,7 +12,7 @@ public class MemberController {
     @Autowired
     MemberService service;
     
-    @ResourceMapping(value-"/memJoin", method=RequestMethod.POST)
+    @ResourceMapping(value="/memJoin", method=RequestMethod.POST)
     public String memJoin(Model model, HttpServletRequest request) {
         String memId = request.getParameter("memId");
         String memPw = request.getParameter("memPw");
