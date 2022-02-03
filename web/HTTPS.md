@@ -45,3 +45,25 @@
 4. 리디렉션할 Target Group 생성 (어떤 인스턴스에 어떤 프로토콜과 포트로 요청을 보낼지 선택)
 
 5. 로드밸런서의 리스너에 Target Group 연동
+
+
+
+---
+
+1) `도메인 구입` - CA 기관에 보내 검증할 도메인 확보
+2) `ACM` - SSL 인증서 발급 기관 / 생성 시 도메인 이름이 필수적이고 CNAME 검증을 마쳐야 활성화됨
+3) `로드밸런서` - Application level에서 분기 (Application Load Balancer 사용) / ALB에서 HTTPS 포트 접근에 대한 SSL 선택 필수
+4) `Target Group` - 인스턴스 타겟 설정 / ALB를 통해 접근할 EC2 인스턴스 선택 후 접근할 때 사용할 포트 선택
+
+
+
+---
+
+- freenom 도메인 구입 완료
+
+- freenom 도메인에 대한 ACM 인증서 등록 완료
+
+- 로드밸런서의 HTTPS 프로토콜에 대해 ACM 인증서 선택
+
+=> HTTP 프로토콜은 되는데 HTTPS는 **ERR_CERT_COMMON_NAME_INVALID** 발생
+
