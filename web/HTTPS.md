@@ -30,6 +30,7 @@
 6. (서버) 클라이언트가 보낸 데이터를 **서버의 개인키** 로 복호화하여 **대칭키** 확보
 
 7. HTTPS 통신
+
 8. 대칭키 폐기 (통신 종료)
 
 
@@ -37,23 +38,23 @@
 ## HTTPS with AWS
 
 1. 도메인 구입 (필수)
-1. Route53 도메인 등록
+2. Route53 도메인 등록
 3. ACM에서 SSL 인증서 발급
-3. 로드밸런서 생성
+4. 로드밸런서 생성
    1. HTTPS 통신으로 오는 443 포트 리스너에 등록
    2. HTTPS 리스너에 SSL 인증서 등록
 5. 리디렉션할 Target Group 생성 (어떤 인스턴스에 어떤 프로토콜과 포트로 요청을 보낼지 선택)
-5. 로드밸런서의 리스너에 Target Group 연동
+6. 로드밸런서의 리스너에 Target Group 연동
 
 
 
 ---
 
 1) `도메인 구입` - CA 기관에 보내 검증할 도메인 확보
-1) `Route53` - 호스팅 영역에 도메인 등록 / 이후 도메인에 네임서버 등록
-2) `ACM` - SSL 인증서 발급 기관 / 생성 시 도메인 이름이 필수적이고 CNAME 검증을 마쳐야 활성화됨
-3) `로드밸런서` - Application level에서 분기 (Application Load Balancer 사용) / ALB에서 HTTPS 포트 접근에 대한 SSL 선택 필수
-4) `Target Group` - 인스턴스 타겟 설정 / ALB를 통해 접근할 EC2 인스턴스 선택 후 접근할 때 사용할 포트 선택
+2) `Route53` - 호스팅 영역에 도메인 등록 / 이후 도메인에 네임서버 등록
+3) `ACM` - SSL 인증서 발급 기관 / 생성 시 도메인 이름이 필수적이고 CNAME 검증을 마쳐야 활성화됨
+4) `로드밸런서` - Application level에서 분기 (Application Load Balancer 사용) / ALB에서 HTTPS 포트 접근에 대한 SSL 선택 필수
+5) `Target Group` - 인스턴스 타겟 설정 / ALB를 통해 접근할 EC2 인스턴스 선택 후 접근할 때 사용할 포트 선택
 
 
 
