@@ -86,3 +86,44 @@ System.out.println(singleton1 == singleton2); // True
 ```
 
 `readResolve()`를 정의하면 역직렬화 이후 새로운 인스턴스가 아니라 readResolve 메서드의 반환값이 생성됨
+
+
+
+# 안전하고 단순한 싱글톤
+
+## enum 사용
+
+```java
+public enum Singleton {
+
+  INSTANCE;
+  Integer value;
+
+  public Integer getValue() {
+    return value;
+  }
+
+}
+```
+
+**reflection에 안전한 코드**
+
+이렇게 작성하면 기본 생성자를 못 가져와서 에러가 발생
+
+```java
+Singleton singleton1 = Singleton.INSTANCE;
+Singleton singleton2 = null;
+Constructor<?>[] declaredConstructors = Singleton.class.getDeclaredConstructors();
+for (Constructor<?> constructors : declaredConstructors) {
+  constructor.setAccessible(true);
+  singleton2 = (Singleton) constructor.newInstance("INSTANCE");
+}
+
+System.out.println(singleton1 == singleton2);
+```
+
+이렇게 작성하면 enum 객체는 Reflection의 newInstance를 사용할 수 없다는 에러 발생
+
+단, 이렇게 하면 인스턴스가 로딩할 때 미리 만들어진다는 단점이 있다.
+
+enum 객체는 기본적으로 Serializable 하기 때문에 Serializable 인터페이스를 구현할 필요가 없으며 <u>역직렬화를 하면 동일한 인스턴스가 생성</u>된다.
