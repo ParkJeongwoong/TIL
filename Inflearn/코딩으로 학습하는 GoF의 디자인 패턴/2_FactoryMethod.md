@@ -179,3 +179,14 @@ public class BlackshipFactory extends DefaultShipFactory {...}
 ```
 
 중간에 추상 클래스를 만들어 주고 WhiteShipFactory와 BlackShipFactory에서 interface가 아니라 abstract class를 상속받아야 한다
+
+## 장단점
+
+- 장점
+
+확장에 열려있고 변경에 닫혀있는 OCP를 적용 가능
+-> Product와 Creator 간의 커플링을 느슨하게 만듬 (느슨한 결합; Loosley Coupling)
+
+- 단점
+
+클래스의 수가 늘어나게 됨
