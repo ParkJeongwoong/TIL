@@ -1,6 +1,7 @@
 # 팩토리 메소드 패턴 활용
 
 - Java의 Calendar
+- Spring의 BeanFactory
 
 ## 기본 구현
 
