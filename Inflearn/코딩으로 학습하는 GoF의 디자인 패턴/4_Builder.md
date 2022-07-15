@@ -61,7 +61,7 @@ public class TourDirector {
             .startDate(LocalDate.of(2021, 9, 24))
             .getPlan();
   }
-  
+
 }
 ```
 
@@ -144,3 +144,21 @@ public class DefaultTourBuilder implements TourPlanBuilder {
 }
 ```
 (concrete builder)
+
+## 장단점
+
+- 장점
+
+복잡한 객체를 <u>순차적</u>으로 만들 수 있음 (생성 방법이 복잡해지면 순서가 꼬이는 걸 방지)
+
+복잡한 객체를 만드는 구체적인 <u>과정을 숨길 수 있음</u>
+
+동일한 프로세스를 통해 각기 <u>다르게 구성된 객체</u>를 만들 수도 있음
+
+</u>불완전한 객체를 사용 방지</u>
+
+- 단점
+
+빌더를 통해서 객체를 만드는 과정이 추가
+
+구조가 복잡해짐
