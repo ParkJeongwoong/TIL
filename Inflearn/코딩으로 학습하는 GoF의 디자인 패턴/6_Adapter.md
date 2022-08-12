@@ -131,3 +131,15 @@ public class AccountUserDetailsService implements UserDetailsService { // Target
 - 3rd Party 모듈을 사용하는 등 직접 Adaptee와 Target을 수정할 수 없을 때 Adapter 사용
 
 - SRP에 따르면 Adapter를 분리하는 게 맞지만 원칙을 너무 엄격히 지키기보단 클래스를 줄이는 실용적인 방법이 유용할 때도 있다.
+
+## 장단점
+
+- 장점
+
+기존 코드 변경 없이 인터페이스 구현체만 추가해서 사용 가능
+
+기존 코드와 신규 코드를 연결하는 작업을 클래스를 분리해서 관리 가능 (SRP 만족)
+
+- 단점
+
+새 클래스가 생겨 복잡도가 증가 (경우에 따라 기존 코드를 수정하는 게 더 좋을 수도 있음)
