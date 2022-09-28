@@ -132,7 +132,7 @@ public interface Skin {
 
 ```java
 public class KDA implements Skin{
-  @Override
+  @OverrideVv
   public String getName() {
       return "KDA";
   }
@@ -145,3 +145,15 @@ public class PoolParty implements Skin {
     }
 }
 ```
+
+## 장단점
+
+- 장점
+
+추상적인 코드 변경 없이 구체적인 코드 변경만으로 확장 가능 (OCP 만족)
+
+추상적인 코드와 구체적인 코드 분리 (SRP 만족)
+
+- 단점
+
+계층 구조가 늘어나 복잡도가 증가
