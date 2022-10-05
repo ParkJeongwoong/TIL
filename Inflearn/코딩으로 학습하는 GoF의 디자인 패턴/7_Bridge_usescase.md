@@ -34,7 +34,7 @@ public static void main(String[] args) throws ClassNotFoundException {
         throw new RuntimeException(e);
     }
     // ===== 추상적인 부분 끝
-}as
+}
 ```
 
 - 추상화 부분
